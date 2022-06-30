@@ -88,8 +88,8 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	PROCESS_PAUSE();
 
 	LOG_INFO("Starting water quality CoAP server\n");
-	coap_activate_resource(&pump_system, "water_quality/pump"); 
-	coap_activate_resource(&pH_sensor, "water_quality/ph");
+	coap_activate_resource(&res_pump_system, "water_quality/pump"); 
+	coap_activate_resource(&res_ph_sensor, "water_quality/ph");
 
 	// try to connect to the border router
 	etimer_set(&connectivity_timer, CLOCK_SECOND * CONNECTION_TEST_INTERVAL);
