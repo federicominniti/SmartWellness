@@ -4,8 +4,9 @@
 #include "coap-engine.h"
 #include "dev/leds.h"
 
-/* Log configuration */
 #include "sys/log.h"
+
+/* Log configuration */
 #define LOG_MODULE "pump-system"
 #define LOG_LEVEL LOG_LEVEL_APP
 
@@ -51,3 +52,4 @@ static void ph_put_handler(coap_message_t *request, coap_message_t *response, ui
     		coap_set_status_code(response, BAD_REQUEST_4_00);
  	}
 }
+

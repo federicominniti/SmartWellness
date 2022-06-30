@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include<time.h>
+#include <time.h>
 #include <stdint.h>
+#include <math.h>
 #include "contiki.h"
 #include "coap-engine.h"
 #include "dev/leds.h"
@@ -10,9 +11,10 @@
 
 #include "global_variables.h"
 
-/* Log configuration */
 #include "sys/log.h"
-#define LOG_MODULE "pH-sensor"
+
+/* Log configuration */
+#define LOG_MODULE "ph-sensor"
 #define LOG_LEVEL LOG_LEVEL_APP
 
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
@@ -34,7 +36,8 @@ float random_float(float a, float b) {
     float r = random * diff;
 
     float res = a + r;
-    float rounded_down = floorf(res * 10) / 10;  
+
+    float rounded_down = (res * 10.0) / 10.0;  
     return rounded_down;
 }
 
@@ -77,7 +80,7 @@ static void ph_event_handler(void) {
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[64];
       	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"pH level\": %d}", (unsigned int) node_id, (float) ph_level);
+      	snprintf(message, length, "{\"node\": %d, \"pH level\": %f}", (unsigned int) node_id, (float) ph_level);
 
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
