@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = air_quality
+CONTIKI_PROJECT = water_quality
 
 all: $(CONTIKI_PROJECT)
 

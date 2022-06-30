@@ -17,13 +17,7 @@
 
 #include "sys/log.h"
 
-
-// #define CONNECTION_TRY_INTERVAL 1  ---to del
-// #define SIMULATION_INTERVAL 1    ---to del
-
-//TO DO 
-// #define SERVER_EP "coap://[fd00::1]:5683"
-
+#define SERVER_EP "coap://[fd00::1]:5683"
 #define REGISTRATION_INTERVAL 2
 #define SENSOR_TYPE "water_quality"
 
@@ -38,15 +32,17 @@
 #define SIMULATION_INTERVAL 5
 #define CONNECTION_TEST_INTERVAL 2
 
-extern coap_resource_t pump_system;
-extern coap_resource_t pH_sensor;
+extern coap_resource_t res_pump_system;
+extern coap_resource_t res_ph_sensor;
 
 char *service_url = "/registration";
 static bool registered = false;
 
 static struct etimer simulation_timer;
 static struct etimer connectivity_timer;
+//static struct etimer wait_registration;
 static struct etimer registration_timer;
+
 
 /* Declare and auto-start this file's process */
 PROCESS(water_quality_server, "Water Quality Server");
@@ -55,10 +51,10 @@ AUTOSTART_PROCESSES(&water_quality_server);
 // Test the connectivity with the border router
 static bool is_connected() {
 	if(NETSTACK_ROUTING.node_is_reachable()) {
-		LOG_INFO("The border router is reachable\n");
+		LOG_INFO("The Border Router is reachable\n");
 		return true;
   	} else {
-		LOG_INFO("Waiting for connection with the border router\n");
+		LOG_INFO("Waiting for connection with the Border Router\n");
 	}
 	return false;
 }
@@ -87,13 +83,13 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	static coap_endpoint_t server_ep;
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
-    //TO DO LEADS BLINKING
+	//TO DO LEADS BLINKING
 	leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
 	PROCESS_PAUSE();
 
 	LOG_INFO("Starting water quality CoAP server\n");
 	coap_activate_resource(&pump_system, "water_quality/pump"); 
-	coap_activate_resource(&pH_sensor, "water_quality/pH");
+	coap_activate_resource(&pH_sensor, "water_quality/ph");
 
 	// try to connect to the border router
 	etimer_set(&connectivity_timer, CLOCK_SECOND * CONNECTION_TEST_INTERVAL);
@@ -103,6 +99,7 @@ PROCESS_THREAD(water_quality_server, ev, data){
 		PROCESS_WAIT_UNTIL(etimer_expired(&connectivity_timer));
 	}
 
+	//try to connect to the collector
 	while(!registered) {
     	LOG_INFO("Sending registration message\n");
     	coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
@@ -113,14 +110,15 @@ PROCESS_THREAD(water_quality_server, ev, data){
 
     	COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
-    	PROCESS_WAIT_UNTIL(etimer_expired(&wait_registration));
+    	PROCESS_WAIT_UNTIL(etimer_expired(&registration_timer));
     }
 
-	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL); // every three seconds
+	//periodic updates
+	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 	while(1) {
 		PROCESS_WAIT_EVENT();
 		if(ev == PROCESS_EVENT_TIMER && data == &simulation_timer) {
-			pH_sensor.trigger();	
+			res_ph_sensor.trigger();	
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 		}
 	}
