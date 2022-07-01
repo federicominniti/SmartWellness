@@ -16,6 +16,7 @@
 /* Log configuration */
 #define LOG_MODULE "ph-sensor"
 #define LOG_LEVEL LOG_LEVEL_APP
+#define SENSOR_TYPE "phSensor"
 
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void ph_event_handler(void);
@@ -80,10 +81,12 @@ static void ph_event_handler(void) {
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[64];
       	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"pH level\": %f}", (unsigned int) node_id, (float) ph_level);
+      	snprintf(message, length, "{\"node\": %d, \"value\": %f, \"sensorType:\" %s}", (unsigned int) node_id, (float) ph_level, (char *)SENSOR_TYPE);
 
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
+
+        LOG_INFO("message: %s", message);
 
       	coap_set_header_content_format(response, TEXT_PLAIN);
       	coap_set_header_etag(response, (uint8_t *)&len, 1);

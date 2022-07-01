@@ -1,6 +1,6 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.waterquality;
 
-import it.unipi.model.WaterQualitySample;
+import it.unipi.model.DataSample;
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
@@ -20,7 +20,7 @@ public class WaterQuality {
     private CoapObserveRelation observePH;
 
     AtomicFloat phValue = new AtomicFloat();
-    private Map<Integer, WaterQualitySample> lastSamples;
+    private Map<Integer, DataSample> lastSamples;
     private AtomicFloat upperBound;
     private AtomicFloat lowerBound;
     private boolean pumpSystemOn = false;
@@ -31,7 +31,7 @@ public class WaterQuality {
         float startingValue = (float)6.8;
         phValue = new AtomicFloat(startingValue);
 
-        lastSamples = new HashMap<Integer,WaterQualitySample>();
+        lastSamples = new HashMap<Integer,DataSample>();
         upperBound = new AtomicFloat((float) 8.0);
         parser = new Gson();
     }
@@ -49,7 +49,7 @@ public class WaterQuality {
         int size = lastSamples.size();
         float sum = 0;
         for (int index: lastSamples.keySet()) {
-            sum += lastSamples.get(index).getPH();
+            sum += lastSamples.get(index).getValue();
         }
 
         phValue.set(sum / size);
@@ -102,17 +102,17 @@ public class WaterQuality {
     */
 
     private class phCoapHandler implements CoapHandler {
-        public void onLoad(CoapResponse response) {
+		public void onLoad(CoapResponse response) {
             String responseString = new String(response.getPayload());
             try {
-                WaterQualitySample waterQualitySample = parser.fromJson(responseString, WaterQualitySample.class);
+                DataSample waterQualitySample = parser.fromJson(responseString, DataSample.class);
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 waterQualitySample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 lastSamples.put(waterQualitySample.getNode(), waterQualitySample);
                 
                 // remove old samples from the lastAirQualitySamples map
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
-                computeAverage();
+                //computeAverage();
             } catch (Exception e) {
                 System.out.print("\n[ERROR] The CO2 sensor gave non-significant data\n>");
             }

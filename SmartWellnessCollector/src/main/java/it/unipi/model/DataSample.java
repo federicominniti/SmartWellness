@@ -2,16 +2,18 @@ package it.unipi.model;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-public class WaterQualitySample {
+public class DataSample {
     private int node; // Node ID
-    private float pH;
+    private float value; //Values of the specific sensor
 
+    private String sensorType;
     private Timestamp timestamp; // set by the collector
 
 
-    public WaterQualitySample(int node, int pH, Timestamp timestamp) {
+    public DataSample(int node, float value, String sensorType, Timestamp timestamp) {
         this.node = node;
-        this.pH = pH;
+        this.value = value;
+        this.sensorType = sensorType;
         this.timestamp = timestamp;
     }
 
@@ -21,6 +23,8 @@ public class WaterQualitySample {
      * 
      * <--- CHECK THIS
      */
+
+     //TO DO
     public boolean isValid ()
     {
         Calendar calendar = Calendar.getInstance();
@@ -39,12 +43,20 @@ public class WaterQualitySample {
         this.node = node;
     }
 
-    public float getPH() {
-        return pH;
+    public float getValue() {
+        return value;
     }
 
-    public void setPH(float pH) {
-        this.pH = pH;
+    public void setValue(float value) {
+        this.value = value;
+    }
+
+    public String getSensorType() {
+        return sensorType;
+    }
+
+    public void setSensorType(String sensorType) {
+        this.sensorType = sensorType;
     }
 
     public Timestamp getTimestamp() {
@@ -57,9 +69,10 @@ public class WaterQualitySample {
 
     @Override
     public String toString() {
-        return "AirQualitySample{" +
+        return "DataSample{" +
                 "node=" + node +
-                ", pH=" + pH +
+                ", value=" + value +
+                ", sensorType=" + sensorType +
                 ", timestamp=" + timestamp +
                 '}';
     }

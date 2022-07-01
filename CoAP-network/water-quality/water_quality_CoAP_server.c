@@ -19,7 +19,7 @@
 
 #define SERVER_EP "coap://[fd00::1]:5683"
 #define REGISTRATION_INTERVAL 2
-#define SENSOR_TYPE "water_quality"
+#define RESOURCE_TYPE "water_quality"
 
 /* Log configuration */
 #define LOG_MODULE "water-quality"
@@ -29,7 +29,7 @@
 // #define SIMULATION_INTERVAL 300
 
 //ONLY TO TEST
-#define SIMULATION_INTERVAL 5
+#define SIMULATION_INTERVAL 2
 #define CONNECTION_TEST_INTERVAL 2
 
 extern coap_resource_t res_pump_system;
@@ -106,7 +106,7 @@ PROCESS_THREAD(water_quality_server, ev, data){
     	// Prepare the message
     	coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
     	coap_set_header_uri_path(request, service_url);
-    	coap_set_payload(request, (uint8_t *)SENSOR_TYPE, sizeof(SENSOR_TYPE) - 1);
+    	coap_set_payload(request, (uint8_t *)RESOURCE_TYPE, sizeof(RESOURCE_TYPE) - 1);
 
     	COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
