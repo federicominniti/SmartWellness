@@ -16,7 +16,6 @@
 /* Log configuration */
 #define LOG_MODULE "ph-sensor"
 #define LOG_LEVEL LOG_LEVEL_APP
-#define SENSOR_TYPE "phSensor"
 
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void ph_event_handler(void);
@@ -30,6 +29,7 @@ EVENT_RESOURCE(res_ph_sensor,
 	 ph_event_handler);
 
 static float ph_level = 7.0;
+static char[20] sensorType = "phSensor";
 
 float random_float(float a, float b) {
     float random = ((float) rand()) / (float) RAND_MAX;
@@ -81,12 +81,12 @@ static void ph_event_handler(void) {
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[64];
       	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"value\": %f, \"sensorType:\" %s}", (unsigned int) node_id, (float) ph_level, (char *)SENSOR_TYPE);
+      	snprintf(message, length, "{\"node\": %d, \"value\": 0.0, \"sensorType\": %s}", (unsigned int) node_id, sensorType);
 
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
 
-        LOG_INFO("message: %s", message);
+        LOG_INFO("message: %s\n", message);
 
       	coap_set_header_content_format(response, TEXT_PLAIN);
       	coap_set_header_etag(response, (uint8_t *)&len, 1);
