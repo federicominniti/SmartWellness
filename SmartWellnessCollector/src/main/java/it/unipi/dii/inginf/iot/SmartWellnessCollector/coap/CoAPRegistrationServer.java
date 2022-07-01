@@ -22,10 +22,6 @@ public class CoAPRegistrationServer extends CoapServer {
         return coapDevicesHandler.getPHLevel();
     }
 
-    public void setPHUpperBound(int phUpperBound) {
-        coapDevicesHandler.setPHUpperBound(phUpperBound);
-    }
-
     class CoapRegistrationResource extends CoapResource {
         public CoapRegistrationResource() {
             super("registration");

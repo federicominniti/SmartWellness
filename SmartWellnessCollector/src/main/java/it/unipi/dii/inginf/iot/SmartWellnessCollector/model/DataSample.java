@@ -1,4 +1,4 @@
-package it.unipi.model;
+package it.unipi.dii.inginf.iot.SmartWellnessCollector.model;
 import java.sql.Timestamp;
 import java.util.Calendar;
 

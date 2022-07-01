@@ -28,7 +28,4 @@ public class CoAPNodesHandler {
         return waterQuality.getPHLevel();
     }
 
-    public void setPHUpperBound(int upperBound) {
-        waterQuality.setUpperBound(upperBound);
-    }
 }
