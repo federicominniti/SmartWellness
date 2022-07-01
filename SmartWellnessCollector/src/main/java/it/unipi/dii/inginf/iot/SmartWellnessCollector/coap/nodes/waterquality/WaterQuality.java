@@ -21,9 +21,10 @@ public class WaterQuality {
 
     AtomicFloat phValue = new AtomicFloat();
     private Map<Integer, DataSample> lastSamples;
-    private AtomicFloat upperBound;
-    private AtomicFloat lowerBound;
-    private boolean pumpSystemOn = false;
+    private static final AtomicFloat LOWER_BOUND = new AtomicFloat((float)7.2);
+    private static final AtomicFloat NORMAL_LEVEL = new AtomicFloat((float)7.5);
+
+    private boolean pumpSystemStatus = false;
 
     private Gson parser;
 
@@ -77,29 +78,27 @@ public class WaterQuality {
         this.upperBound.set(upperBound);
     }
 
-    /* 
+    
     private void pumpSystemSwitch(final CoapClient clientPumpSystem, boolean on) {
         if(clientPumpSystem == null)
             return;
 
-        String msg = "mode=" + (on ? "ON" : "OFF");
+        String msg = "status=" + (on ? "ON" : "OFF");
         clientPumpSystem.put(new CoapHandler() {
             @Override
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
                     if(!coapResponse.isSuccess())
-                        System.out.print("\n[ERROR] Ventilation System: PUT request unsuccessful\n>");
+                        System.out.print("\n[ERROR] Pump System: PUT request failed\n>");
                 }
             }
 
             @Override
             public void onError() {
-                System.err.print("\n[ERROR] Ventilation System " + clientPumpSystem.getURI() + "]\n>");
+                System.err.print("\n[ERROR] Pump System " + clientPumpSystem.getURI() + "]\n>");
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
-
-    */
 
     private class phCoapHandler implements CoapHandler {
 		public void onLoad(CoapResponse response) {
@@ -109,7 +108,7 @@ public class WaterQuality {
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 waterQualitySample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 lastSamples.put(waterQualitySample.getNode(), waterQualitySample);
-                
+                System.out.println(waterQualitySample.toString());
                 // remove old samples from the lastAirQualitySamples map
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
                 //computeAverage();
@@ -117,7 +116,30 @@ public class WaterQuality {
                 System.out.print("\n[ERROR] The CO2 sensor gave non-significant data\n>");
             }
 
-            //DEFINE LOGIC
+            if(!pumpSystemStatus && phValue.get() < LOWER_BOUND.get()) {
+                //logger.logAirQuality("CO2 level is HIGH: " + co2Level.get() + " ppm, the ventilation system is switched ON");
+                //for (CoapClient clientPumpSystem: clientVentilationSystemList) {
+                pumpSystemSwitch(pumpSystem,true);
+                //}
+                pumpSystemStatus = true;
+                System.out.println("Pompa attiva");
+            }
+
+            // We don't turn off the ventilation as soon as the value is lower than the upper bound,
+            // but we leave a margin so that we don't have to turn on the system again right away
+            else if (pumpSystemStatus && phValue.get()  >= NORMAL_LEVEL.get()) {
+                //logger.logAirQuality("CO2 level is now fine: " + co2Level.get() + " ppm. Switch OFF the ventilation system");
+                //for (CoapClient clientVentilationSystem: clientVentilationSystemList) {
+                pumpSystemSwitch(pumpSystem,false);
+                //}
+                pumpSystemStatus = false;
+                System.out.println("Pompa disattiva");
+            }
+
+            //else
+            //{
+            //    logger.logAirQuality("C02 level is fine: " + co2Level.get() + " ppm");
+            //}
         }
 
         public void onError() {
