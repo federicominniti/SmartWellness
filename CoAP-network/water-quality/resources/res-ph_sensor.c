@@ -29,7 +29,7 @@ EVENT_RESOURCE(res_ph_sensor,
 	 ph_event_handler);
 
 static float ph_level = 7.0;
-static char[20] sensorType = "phSensor";
+static char sensorType[20] = "phSensor";
 
 float random_float(float a, float b) {
     float random = ((float) rand()) / (float) RAND_MAX;
@@ -47,7 +47,7 @@ static bool simulate_ph_values () {
 	float old_ph = ph_level;
 
     srand(time(NULL));
-    int value = 0;
+    float value = 0;
 
 	if(pump_on) {
         // if the pH is in the right interval and the pump is on (may be caused by manual activation)
@@ -62,6 +62,7 @@ static bool simulate_ph_values () {
 	} else {
         value = random_float(0.1, 0.5);
         ph_level = old_ph - value;
+        LOG_INFO("value: %u.%u\n", digitsBefore(value), digitsAfter(value));
     }
 
 	if(old_ph != ph_level)
@@ -72,7 +73,7 @@ static bool simulate_ph_values () {
 
 static void ph_event_handler(void) {
 	if (simulate_ph_values()) { // if the value is changed
-		LOG_INFO("pH level: %f \n", ph_level);
+		LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
 		// Notify all the observers
     	coap_notify_observers(&res_ph_sensor);
 	}
@@ -82,19 +83,19 @@ static void ph_event_handler(void) {
 //CONTIKI DOES NOT SUPPORT THE FLOAT FORMAT
 
 // Return digits before point
-unsigned short digitBefore(float f){
+unsigned short digitsBefore(float f){
     return((unsigned short)f);
 }
 
 // Return digits after point
-unsigned short digitAfter(float f){
-    return(1000*(f-d1(f)));
+unsigned short digitsAfter(float f){
+    return(1000*(f-digitsBefore(f)));
 }
 
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[64];
       	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"sensorType\": \"%s\"}", (unsigned int) node_id, digitBefore(ph_level), digitAfter(ph_level), sensorType);
+      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"sensorType\": \"%s\"}", (unsigned int) node_id, digitsBefore(ph_level), digitsAfter(ph_level), sensorType);
 
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
