@@ -20,41 +20,55 @@
 
 #include "sys/log.h"
 
+//Observing server End-Point address
 #define SERVER_EP "coap://[fd00::1]:5683"
+
+//Interval for registration retries with the observing server
 #define REGISTRATION_INTERVAL 2
+
+//Type of device
 #define RESOURCE_TYPE "water_quality"
 
-/* Log configuration */
+// Log configuration
 #define LOG_MODULE "water-quality"
 #define LOG_LEVEL LOG_LEVEL_APP
 
-//TO DO 
-// #define SIMULATION_INTERVAL 300
-
-//ONLY TO TEST
+//Simulation interval between sensor measurements
 #define SIMULATION_INTERVAL 10
+
+//Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
 
+//Coap Resources for the pump (actuator) and the PH-sensor (sensor)
 extern coap_resource_t res_pump_system;
 extern coap_resource_t res_ph_sensor;
 
+//URL for registration with the observing server
 char *service_url = "/registration";
+
+//Registration status
 static bool registered = false;
 
+//Timer for simulations of sensor measurements
 static struct etimer simulation_timer;
+
+//Timer for connection retries with the border router
 static struct etimer connectivity_timer;
-//static struct etimer wait_registration;
+
+//Timer for registration retries with the observing server
 static struct etimer registration_timer;
 
-//Leds' timer
+//Timers required for leds blinking
 static struct etimer registration_led_timer;
 static struct etimer pump_led_timer;
 static struct etimer led_on_timer;
 
-/* Declare and auto-start this file's process */
+//Declare the two protothreads: one for the sensing subsystem,
+//the other for handling leds blinking
 PROCESS(water_quality_server, "Water Quality Server");
 PROCESS(blinking_led, "Led blinking process");
 AUTOSTART_PROCESSES(&water_quality_server, &blinking_led);
+
 
 // Test the connectivity with the border router
 static bool is_connected() {
@@ -67,8 +81,8 @@ static bool is_connected() {
 	return false;
 }
 
-// Handler for connection requests sended by the water quality server
-// In case the reply is 'Successs' the water quality server is connected to the collector
+// Handler for connection requests sent by the water quality server
+// In case the reply is 'Success' the water quality server is connected to the collector
 void client_chunk_handler(coap_message_t *response) {
 	const uint8_t *chunk;
 	if(response == NULL) {
@@ -89,11 +103,9 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	PROCESS_BEGIN();
 
 	static coap_endpoint_t server_ep;
-    static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
-	//TO DO LEADS BLINKING
-	//leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
-	//PROCESS_PAUSE();
+    // This way the packet can be treated as pointer as usual
+    static coap_message_t request[1];
 
 	LOG_INFO("Starting water quality CoAP server\n");
 	coap_activate_resource(&res_pump_system, "water_quality/pump"); 
@@ -121,7 +133,7 @@ PROCESS_THREAD(water_quality_server, ev, data){
     	PROCESS_WAIT_UNTIL(etimer_expired(&registration_timer));
     }
 
-	//periodic updates
+	//periodic simulation of sensor measurements
 	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 	while(1) {
 		PROCESS_WAIT_EVENT();
