@@ -48,6 +48,7 @@ public class WaterQuality {
         observePH = phSensor.observe(new phCoapHandler());
     }
 
+    // TO DO vedere se usare computeAverage
     private void computeAverage() {
         int size = lastSamples.size();
         float sum = 0;
@@ -57,20 +58,14 @@ public class WaterQuality {
 
         phValue.set(sum / size);
     }
-
-    /* 
-    public void unregisterAirQuality(String ip) {
-        for (int i = 0; i < clientCO2SensorList.size(); i++) {
-            if (clientCO2SensorList.get(i).getURI().equals(ip)) {
-                clientCO2SensorList.remove(i);
-                clientVentilationSystemList.remove(i);
-                observeCO2List.get(i).proactiveCancel();
-                observeCO2List.remove(i);
-            }
+    
+    public void unregisterWaterQuality(String ip) {
+        //for (int i = 0; i < clientCO2SensorList.size(); i++) {
+        if (phSensor.getURI().equals(ip)) {
+            observePH.proactiveCancel();
         }
+        //}
     }
-
-    */
 
     public float getPHLevel() {
         return phValue.get();
@@ -106,6 +101,7 @@ public class WaterQuality {
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 waterQualitySample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 lastSamples.put(waterQualitySample.getNode(), waterQualitySample);
+                phValue.set(waterQualitySample.getValue());
                 //System.out.print("\n" + waterQualitySample.toString() + "\n>");
                 // remove old samples from the lastAirQualitySamples map
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());

@@ -50,9 +50,11 @@ public class CoAPRegistrationServer extends CoapServer {
             String deviceType = request[1];
             boolean success = false;
 
-            if (deviceType.equals("water_quality")) {
-                //coapDevicesHandler.unregister...
-                success = true;
+            switch (deviceType) {
+                case "air_quality":
+                    coapDevicesHandler.unregisterWaterQuality(ip);
+                    success = true;
+                    break;
             }
 
             if(success)

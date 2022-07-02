@@ -28,4 +28,8 @@ public class CoAPNodesHandler {
         return waterQuality.getPHLevel();
     }
 
+    public void unregisterWaterQuality(String ip) {
+        waterQuality.unregisterWaterQuality(ip);
+    }
+
 }

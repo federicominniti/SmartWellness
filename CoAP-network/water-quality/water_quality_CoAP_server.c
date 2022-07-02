@@ -15,6 +15,8 @@
 #include "net/ipv6/uip-debug.h"
 #include "routing/routing.h"
 
+#include "global_variables.h"
+
 #include "sys/log.h"
 
 #define SERVER_EP "coap://[fd00::1]:5683"
@@ -43,10 +45,15 @@ static struct etimer connectivity_timer;
 //static struct etimer wait_registration;
 static struct etimer registration_timer;
 
+//Leds' timer
+static struct etimer registration_led_timer;
+static struct etimer pump_led_timer;
+static struct etimer led_on_timer;
 
 /* Declare and auto-start this file's process */
 PROCESS(water_quality_server, "Water Quality Server");
-AUTOSTART_PROCESSES(&water_quality_server);
+PROCESS(blinking_led, "Led blinking process");
+AUTOSTART_PROCESSES(&water_quality_server, &blinking_led);
 
 // Test the connectivity with the border router
 static bool is_connected() {
@@ -84,8 +91,8 @@ PROCESS_THREAD(water_quality_server, ev, data){
     static coap_message_t request[1]; // This way the packet can be treated as pointer as usual
 
 	//TO DO LEADS BLINKING
-	leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-	PROCESS_PAUSE();
+	//leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+	//PROCESS_PAUSE();
 
 	LOG_INFO("Starting water quality CoAP server\n");
 	coap_activate_resource(&res_pump_system, "water_quality/pump"); 
@@ -123,5 +130,46 @@ PROCESS_THREAD(water_quality_server, ev, data){
 		}
 	}
 
+	PROCESS_END();
+}
+
+PROCESS_THREAD(blinking_led, ev, data)
+{
+	PROCESS_BEGIN();
+
+	etimer_set(&registration_led_timer, 1*CLOCK_SECOND);
+
+	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+
+	while(!is_connected() && !registered){
+		PROCESS_YIELD();
+		if (ev == PROCESS_EVENT_TIMER){
+			if(etimer_expired(&registration_led_timer)){
+				leds_toggle(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				etimer_restart(&registration_led_timer);
+			}
+		}
+	}
+
+	etimer_set(&pump_led_timer, 7*CLOCK_SECOND);
+	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
+
+	while(1){
+		PROCESS_YIELD();
+		if (ev == PROCESS_EVENT_TIMER){
+			if(etimer_expired(&pump_led_timer)){
+				if(pumpOn){
+					leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				}
+				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
+				etimer_restart(&pump_led_timer);
+				etimer_restart(&led_on_timer);
+			}
+			if(etimer_expired(&led_on_timer)){
+				leds_off(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			}
+		}
+	}
 	PROCESS_END();
 }
