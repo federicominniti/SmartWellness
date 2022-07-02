@@ -82,6 +82,7 @@ public class DataSample {
         return "DataSample{" +
                 "node=" + node +
                 ", value=" + value +
+                ", manual=" + manual +
                 ", sensorType=" + sensorType +
                 ", timestamp=" + timestamp +
                 '}';

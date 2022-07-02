@@ -90,9 +90,9 @@ static void ph_event_handler(void) {
  
  
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
-  	  	char message[64];
-      	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"sensorType\": \"%s\", \"manual\": %d}", (unsigned int) node_id, digitsBefore(ph_level), digitsAfter(ph_level), sensorType, (int)manual);
+  	  	char message[96];
+      	int length = 96;
+      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"manual\": %d, \"sensorType\": \"%s\"}", (unsigned int) node_id, digitsBefore(ph_level), digitsAfter(ph_level), (int)manual, sensorType);
  
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);

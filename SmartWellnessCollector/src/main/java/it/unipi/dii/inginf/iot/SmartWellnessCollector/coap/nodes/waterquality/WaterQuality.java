@@ -109,6 +109,7 @@ public class WaterQuality {
                 //computeAverage();
             } catch (Exception e) {
                 System.out.print("\n[ERROR] The CO2 sensor gave non-significant data\n>");
+                e.printStackTrace();
             }
             
 

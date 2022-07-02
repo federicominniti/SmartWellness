@@ -125,7 +125,7 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 	while(1) {
 		PROCESS_WAIT_EVENT();
-		if(ev == PROCESS_EVENT_TIMER && data == &simulation_timer || ev == button_hal_press_event) {
+		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
 			//handle manual pump activation with the button
 			if(ev == button_hal_press_event){
 				manual = !manual;
