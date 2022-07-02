@@ -5,14 +5,16 @@ import java.util.Calendar;
 public class DataSample {
     private int node; // Node ID
     private float value; //Values of the specific sensor
+    private int manual;
 
     private String sensorType;
     private Timestamp timestamp; // set by the collector
 
 
-    public DataSample(int node, float value, String sensorType, Timestamp timestamp) {
+    public DataSample(int node, float value, int manual, String sensorType, Timestamp timestamp) {
         this.node = node;
         this.value = value;
+        this.manual = manual;
         this.sensorType = sensorType;
         this.timestamp = timestamp;
     }
@@ -65,6 +67,14 @@ public class DataSample {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getManual() {
+        return manual;
+    }
+
+    public void setManual(int manual) {
+        this.manual = manual;
     }
 
     @Override

@@ -27,6 +27,7 @@ public class WaterQuality {
     private static final AtomicFloat NORMAL_LEVEL = new AtomicFloat((float)7.5);
 
     private boolean pumpSystemStatus = false;
+    private boolean manualPump = false;
 
     private Gson parser;
 
@@ -109,8 +110,17 @@ public class WaterQuality {
             } catch (Exception e) {
                 System.out.print("\n[ERROR] The CO2 sensor gave non-significant data\n>");
             }
+            
 
-            if(!pumpSystemStatus && phValue.get() < LOWER_BOUND.get()) {
+            if(manualPump){
+                pumpSystemStatus = !pumpSystemStatus;
+                if(pumpSystemStatus){
+                    System.out.println("[MANUAL] Pompa attiva");
+                } else{
+                    System.out.println("[MANUAL] Pompa disattiva");
+                }
+            }
+            else if(!pumpSystemStatus && phValue.get() < LOWER_BOUND.get()) {
                 //logger.logAirQuality("CO2 level is HIGH: " + co2Level.get() + " ppm, the ventilation system is switched ON");
                 //for (CoapClient clientPumpSystem: clientVentilationSystemList) {
                 pumpSystemSwitch(pumpSystem,true);

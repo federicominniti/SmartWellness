@@ -39,7 +39,8 @@ float random_float(float a, float b) {
     float res = a + r;
     return res;
 }
- 
+
+//CONTIKI DOES NOT SUPPORT THE FLOAT FORMAT
 // Return digits before point
 unsigned short digitsBefore(float f){
     return((unsigned short)f);
@@ -88,13 +89,10 @@ static void ph_event_handler(void) {
 }
  
  
-//CONTIKI DOES NOT SUPPORT THE FLOAT FORMAT
- 
- 
 static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[64];
       	int length = 64;
-      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"sensorType\": \"%s\"}", (unsigned int) node_id, digitsBefore(ph_level), digitsAfter(ph_level), sensorType);
+      	snprintf(message, length, "{\"node\": %d, \"value\": %u.%u, \"sensorType\": \"%s\", \"manual\": %d}", (unsigned int) node_id, digitsBefore(ph_level), digitsAfter(ph_level), sensorType, (int)manual);
  
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);

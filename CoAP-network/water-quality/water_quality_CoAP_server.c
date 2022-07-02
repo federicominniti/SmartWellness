@@ -7,6 +7,7 @@
 #include "sys/etimer.h"
 #include "dev/leds.h"
 #include "coap-blocking-api.h"
+#include "os/dev/button-hal.h"
 
 #include "node-id.h"
 #include "net/ipv6/simple-udp.h"
@@ -124,7 +125,12 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 	while(1) {
 		PROCESS_WAIT_EVENT();
-		if(ev == PROCESS_EVENT_TIMER && data == &simulation_timer) {
+		if(ev == PROCESS_EVENT_TIMER && data == &simulation_timer || ev == button_hal_press_event) {
+			//handle manual pump activation with the button
+			if(ev == button_hal_press_event){
+				manual = !manual;
+				pump_on = !pump_on;
+			}
 			res_ph_sensor.trigger();	
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 		}

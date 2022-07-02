@@ -20,6 +20,7 @@ RESOURCE(res_pump_system,
          NULL);
 
 bool pump_on = false;
+bool manual = false;
 
 static void ph_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	size_t len = 0;
