@@ -31,7 +31,7 @@
 // #define SIMULATION_INTERVAL 300
 
 //ONLY TO TEST
-#define SIMULATION_INTERVAL 2
+#define SIMULATION_INTERVAL 10
 #define CONNECTION_TEST_INTERVAL 2
 
 extern coap_resource_t res_pump_system;
@@ -158,7 +158,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&pump_led_timer)){
-				if(pumpOn){
+				if(pump_on){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 				}
 				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));

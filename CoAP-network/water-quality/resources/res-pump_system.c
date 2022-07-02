@@ -35,11 +35,11 @@ static void ph_put_handler(coap_message_t *request, coap_message_t *response, ui
 		if(strncmp(status, "ON", len) == 0) {
 			pump_on = true;
             //TO-DO BLINKING
-			leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			//leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
 			LOG_INFO("Pump system ON\n");
 		} else if(strncmp(status, "OFF", len) == 0) {
 			pump_on = false;
-			leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
+			//leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
 			LOG_INFO("Pump system System OFF\n");
 		} else {
 			response_status = false;
