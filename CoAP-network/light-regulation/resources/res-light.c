@@ -19,8 +19,8 @@ RESOURCE(res_light_system,
          light_put_handler,
          NULL);
 
-static int light_level = 0;
-static bool manual = false;
+int light_level = 0;
+bool manual = false;
 
 static void light_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	size_t len = 0;

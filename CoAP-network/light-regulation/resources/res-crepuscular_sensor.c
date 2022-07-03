@@ -33,23 +33,20 @@ static char sensorType[20] = "crepuscularSensor";
  
 static bool simulate_lux_values () { 
 	bool updated = false;
-	int old_lux = lux_level;
+	int old_lux = lux;
  
     srand(time(NULL));
-    int value = 0;
  
-	if(light_on) {
-        lux = rand()%25000
-    }
+	lux = rand()%25000;
  
-	if(old_ph != ph_level)
+	if(old_lux != lux)
 		updated = true;
  
 	return updated;
 }
  
-static void ph_event_handler(void) {
-	if (simulate_ph_values()) { // if the value is changed
+static void lux_event_handler(void) {
+	if (simulate_lux_values()) { // if the value is changed
 		LOG_INFO("LUX: %d \n", lux);
 		// Notify all the observers
     	coap_notify_observers(&res_crepuscular_sensor);
@@ -57,7 +54,7 @@ static void ph_event_handler(void) {
 }
  
  
-static void ph_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
+static void lux_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   	  	char message[96];
       	int length = 96;
       	snprintf(message, length, "{\"node\": %d, \"value\": %d, \"manual\": %d, \"sensorType\": \"%s\"}", (unsigned int) node_id, (unsigned int)lux, (int)manual, sensorType);

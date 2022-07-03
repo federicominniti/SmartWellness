@@ -143,7 +143,11 @@ PROCESS_THREAD(light_regulation_server, ev, data){
 			//handle manual pump activation with the button
 			if(ev == button_hal_press_event){
 				manual = !manual;
-				light_on = !light_on;
+				if(light_level == 0){
+					light_level = 2;
+				}else{
+					light_level = 0;
+				}
 			}
 			res_crepuscular_sensor.trigger();	
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
