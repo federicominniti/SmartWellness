@@ -7,7 +7,7 @@
 #include "sys/log.h"
 
 /* Log configuration */
-#define LOG_MODULE "pump-system"
+#define LOG_MODULE "light"
 #define LOG_LEVEL LOG_LEVEL_APP
 
 static void light_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
@@ -44,7 +44,7 @@ static void light_put_handler(coap_message_t *request, coap_message_t *response,
 	}
 	
 	if(!response_status) {
-    		coap_set_status_code(response, BAD_REQUEST_4_00);
+    	coap_set_status_code(response, BAD_REQUEST_4_00);
  	}
 }
 

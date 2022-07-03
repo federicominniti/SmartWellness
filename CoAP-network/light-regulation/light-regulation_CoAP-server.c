@@ -42,8 +42,8 @@
 #define CONNECTION_TEST_INTERVAL 2
 
 //Coap Resources for the pump (actuator) and the PH-sensor (sensor)
-extern coap_resource_t res_pump_system;
-extern coap_resource_t res_ph_sensor;
+extern coap_resource_t res_light_system;
+extern coap_resource_t res_crepuscular_sensor;
 
 //URL for registration with the observing server
 char *service_url = "/registration";
@@ -62,7 +62,7 @@ static struct etimer registration_timer;
 
 //Timers required for leds blinking
 static struct etimer registration_led_timer;
-static struct etimer pump_led_timer;
+static struct etimer lux_led_timer;
 static struct etimer led_on_timer;
 
 //Declare the two protothreads: one for the sensing subsystem,
