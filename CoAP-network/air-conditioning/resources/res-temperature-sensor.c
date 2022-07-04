@@ -28,7 +28,7 @@ EVENT_RESOURCE(res_temperature_sensor,
          NULL,
 	 temperature_event_handler);
 
-static int temperature = 20;
+static int temperature = 18;
 //static char sensorType[20] = "tempSensor";
 
 static bool simulate_temperature_values () {
@@ -39,11 +39,17 @@ static bool simulate_temperature_values () {
     int variation = 0;
 
 	if(ac_on) {
-	    if (temperature == ac_temperature) {
+	    if (temperature < ac_temperature) {
+	        variation = rand() % 3;
+	        if (variation != 1) {
+	            variation = 0;
+	        }
+	    }
+	    else if (temperature == ac_temperature) {
 	        variation = 0;
 	    } else {
-	        //25% of chance that the temperature will go down of 1C
-	        variation = rand() % 4;
+	        //33% of chance that the temperature will go down of 1C
+	        variation = rand() % 3;
 	        if (variation != 1)
 	            variation = 0;
 
@@ -52,8 +58,8 @@ static bool simulate_temperature_values () {
 	    temperature = temperature - variation;
 
 	} else {
-	    //25% of chance that the temperature will go up of 1C
-        variation = rand() % 4;
+	    //3% of chance that the temperature will go up of 1C
+        variation = rand() % 3;
         if (variation != 1)
             variation = 0;
 
