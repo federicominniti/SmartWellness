@@ -43,7 +43,8 @@ static bool simulate_temperature_values () {
 	        variation = rand() % 3;
 	        if (variation != 1) {
 	            variation = 0;
-	        }
+	        } else
+	            variation = -1;
 	    }
 	    else if (temperature == ac_temperature) {
 	        variation = 0;
