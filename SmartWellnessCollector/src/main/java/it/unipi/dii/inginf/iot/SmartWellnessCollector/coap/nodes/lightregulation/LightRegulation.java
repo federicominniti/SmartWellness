@@ -1,4 +1,4 @@
-package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightRegulation;
+package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import com.google.gson.Gson;
@@ -10,6 +10,7 @@ import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.ArrayList;
 import java.sql.Timestamp;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
@@ -25,8 +26,8 @@ public class LightRegulation {
     private static AtomicInteger LOWER_BOUND_MAX_LUX = new AtomicInteger(1500);
     private static AtomicInteger LOWER_BOUND_INTERMEDIATE_LUX = new AtomicInteger(350);
 
-    private int lightLevel = 0;
-    private boolean manualLight = false;
+    private AtomicInteger lightLevel = new AtomicInteger(0);
+    private AtomicBoolean manualLight = new AtomicBoolean(false);
 
     private Gson parser;
 
@@ -100,7 +101,7 @@ public class LightRegulation {
     }
 
     private int manualLightSwitchSystem(){
-        if(lightLevel == 0){
+        if(lightLevel.get() == 0){
             System.out.println("[MANUAL] Luce attiva");
             return 2;
         } else{
@@ -117,12 +118,12 @@ public class LightRegulation {
                 DataSample lightRegulationSample = parser.fromJson(responseString, DataSample.class);
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 lightRegulationSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                if(lightRegulationSample.getManual() == 1 && manualLight == false){
-                    manualLight = true;
-                    lightLevel = manualLightSwitchSystem();
-                } else if(lightRegulationSample.getManual() == 0 && manualLight == true){
-                    manualLight = false;
-                    lightLevel = manualLightSwitchSystem();
+                if(lightRegulationSample.getManual() == 1 && manualLight.get() == false){
+                    manualLight.set(true);
+                    lightLevel.set(manualLightSwitchSystem());
+                } else if(lightRegulationSample.getManual() == 0 && manualLight.get() == true){
+                    manualLight.set(false);
+                    lightLevel.set(manualLightSwitchSystem());
                 }
                 lastSamples.add(lightRegulationSample);
                 luxValue.set((int)lightRegulationSample.getValue());
@@ -135,18 +136,18 @@ public class LightRegulation {
                 e.printStackTrace();
             }
 
-            if(manualLight == false){
+            if(manualLight.get() == false){
                 if(luxValue.get() > LOWER_BOUND_MAX_LUX.get()){
-                    lightLevel = 0;
-                    lightSystemSwitch(lightSystem, lightLevel);
+                    lightLevel.set(0);
+                    lightSystemSwitch(lightSystem, lightLevel.get());
                     System.out.println("Luce spenta");
                 } else if(luxValue.get() < LOWER_BOUND_MAX_LUX.get() && getLuxValue() > LOWER_BOUND_INTERMEDIATE_LUX.get()){
-                    lightLevel = 1;
-                    lightSystemSwitch(lightSystem, lightLevel);
+                    lightLevel.set(1);
+                    lightSystemSwitch(lightSystem, lightLevel.get());
                     System.out.println("Luce bassa");
                 } else if(luxValue.get() < LOWER_BOUND_INTERMEDIATE_LUX.get()){
-                    lightLevel = 2;
-                    lightSystemSwitch(lightSystem, lightLevel);
+                    lightLevel.set(2);
+                    lightSystemSwitch(lightSystem, lightLevel.get());
                     System.out.println("Luce alta");
                 }
             }

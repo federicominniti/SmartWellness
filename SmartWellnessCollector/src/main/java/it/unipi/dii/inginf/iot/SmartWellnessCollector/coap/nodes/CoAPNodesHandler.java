@@ -2,6 +2,7 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.waterquality.WaterQuality;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.airconditioning.AirConditioning;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation.LightRegulation;
 public class CoAPNodesHandler {
     private WaterQuality waterQuality;
     private AirConditioning airConditioning;
