@@ -48,3 +48,14 @@ static void light_put_handler(coap_message_t *request, coap_message_t *response,
  	}
 }
 
+void manual_handler(){
+    manual = !manual;
+    if(light_level == 0){
+		light_level = 2;
+        LOG_INFO("Light ON\n");
+	}else{
+		light_level = 0;
+        LOG_INFO("Light OFF\n");
+	}
+}
+

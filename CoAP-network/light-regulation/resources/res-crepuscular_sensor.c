@@ -37,7 +37,8 @@ static bool simulate_lux_values () {
  
     srand(time(NULL));
  
-	lux = rand()%25000;
+	//In a real environment the luxe range is 0 - 25000
+	lux = rand()%1850;
  
 	if(old_lux != lux)
 		updated = true;
