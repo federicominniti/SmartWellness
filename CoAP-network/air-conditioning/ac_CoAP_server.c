@@ -27,10 +27,10 @@
 #define REGISTRATION_INTERVAL 2
 
 //Type of device
-#define RESOURCE_TYPE "water_quality"
+#define RESOURCE_TYPE "air_conditioning"
 
 // Log configuration
-#define LOG_MODULE "water-quality"
+#define LOG_MODULE "air_conditioning"
 #define LOG_LEVEL LOG_LEVEL_APP
 
 //Simulation interval between sensor measurements
@@ -39,9 +39,9 @@
 //Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
 
-//Coap Resources for the buffer regulator (actuator) and the PH-sensor (sensor)
-extern coap_resource_t res_buffer_regulator;
-extern coap_resource_t res_ph_sensor;
+//Coap Resources for the AC (actuator) and the temperature sensor (sensor)
+extern coap_resource_t res_ac_system;
+extern coap_resource_t res_temperature_sensor;
 
 //URL for registration with the observing server
 char *service_url = "/registration";
@@ -60,14 +60,14 @@ static struct etimer registration_timer;
 
 //Timers required for leds blinking
 static struct etimer registration_led_timer;
-static struct etimer buffer_led_timer;
+static struct etimer ac_led_timer;
 static struct etimer led_on_timer;
 
 //Declare the two protothreads: one for the sensing subsystem,
 //the other for handling leds blinking
-PROCESS(water_quality_server, "Water Quality Server");
+PROCESS(air_conditioning_server, "Air Conditioning Server");
 PROCESS(blinking_led, "Led blinking process");
-AUTOSTART_PROCESSES(&water_quality_server, &blinking_led);
+AUTOSTART_PROCESSES(&air_conditioning_server, &blinking_led);
 
 
 // Test the connectivity with the border router
@@ -99,7 +99,7 @@ void client_chunk_handler(coap_message_t *response) {
 		etimer_set(&registration_timer, CLOCK_SECOND* REGISTRATION_INTERVAL);
 }
 
-PROCESS_THREAD(water_quality_server, ev, data){
+PROCESS_THREAD(air_conditioning_server, ev, data){
 	PROCESS_BEGIN();
 
 	static coap_endpoint_t server_ep;
@@ -107,9 +107,9 @@ PROCESS_THREAD(water_quality_server, ev, data){
     // This way the packet can be treated as pointer as usual
     static coap_message_t request[1];
 
-	LOG_INFO("Starting water quality CoAP server\n");
-	coap_activate_resource(&res_buffer_regulator, "water_quality/buffer"); 
-	coap_activate_resource(&res_ph_sensor, "water_quality/ph");
+	LOG_INFO("Starting air conditioning CoAP server\n");
+	coap_activate_resource(&res_ac_system, "air_conditioning/ac");
+	coap_activate_resource(&res_temperature_sensor, "air_conditioning/temperature");
 
 	// try to connect to the border router
 	etimer_set(&connectivity_timer, CLOCK_SECOND * CONNECTION_TEST_INTERVAL);
@@ -138,12 +138,12 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	while(1) {
 		PROCESS_WAIT_EVENT();
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
-			//handle manual buffer release with the button
+			//handle manual pump activation with the button
 			if(ev == button_hal_press_event){
 				manual = !manual;
-				buffer_release = !buffer_release;
+				ac_on = !ac_on;
 			}
-			res_ph_sensor.trigger();	
+			res_temperature_sensor.trigger();
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 		}
 	}
@@ -169,18 +169,18 @@ PROCESS_THREAD(blinking_led, ev, data)
 		}
 	}
 
-	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
+	etimer_set(&ac_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
-			if(etimer_expired(&buffer_led_timer)){
-				if(buffer_release){
+			if(etimer_expired(&ac_led_timer)){
+				if(ac_on){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 				}
 				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
-				etimer_restart(&buffer_led_timer);
+				etimer_restart(&ac_led_timer);
 				etimer_restart(&led_on_timer);
 			}
 			if(etimer_expired(&led_on_timer)){

@@ -58,8 +58,8 @@ static bool simulate_ph_values () {
     srand(time(NULL));
     float value = 0;
  
-	if(pump_on) {
-        // if the pH is in the right interval and the pump is on (may be caused by manual activation)
+	if(buffer_release) {
+        // if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
         // the pH remains in the right range
         if (old_ph >= 7.2 && old_ph <= 7.8) {
             ph_level = random_float(7.2, 7.8);

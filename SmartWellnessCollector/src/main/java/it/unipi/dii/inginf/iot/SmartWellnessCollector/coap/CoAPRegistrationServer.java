@@ -21,6 +21,33 @@ public class CoAPRegistrationServer extends CoapServer {
     public float getPHLevel() {
         return coapDevicesHandler.getPHLevel();
     }
+    public int getGymTemperature() {
+        return coapDevicesHandler.getGymTemperature();
+    }
+
+    public int getGymACTemperature() {
+        return coapDevicesHandler.getGymACTemperature();
+    }
+
+    public void setGymMaxTemperature(int temp) {
+        coapDevicesHandler.setGymMaxTemperature(temp);
+    }
+
+    public void setGymACTemperature(int temp) {
+        coapDevicesHandler.setGymACTemperature(temp);
+    }
+
+    public int getLuxValue(){
+        return coapDevicesHandler.getLuxValue();
+    }
+
+    public void setGymLowerBoundMaxLux(int maxLux) {
+        coapDevicesHandler.setGymLowerBoundMaxLux(maxLux);
+    }
+
+    public void setGymLowerBoundIntermediateLux(int intermediateLux) {
+        coapDevicesHandler.setGymLowerBoundIntermediateLux(intermediateLux);
+    }
 
     class CoapRegistrationResource extends CoapResource {
         public CoapRegistrationResource() {
@@ -32,9 +59,22 @@ public class CoAPRegistrationServer extends CoapServer {
             String deviceType = exchange.getRequestText();
             String ip = exchange.getSourceAddress().getHostAddress();
             boolean success = false;
-            if (deviceType.equals("water_quality")) {
-                coapDevicesHandler.registerWaterQuality(ip);
-                success = true;
+
+            switch (deviceType) {
+                case "water_quality":
+                    coapDevicesHandler.registerWaterQuality(ip);
+                    success = true;
+                    break;
+
+                case "air_conditioning":
+                    coapDevicesHandler.registerAirConditioning(ip);
+                    success = true;
+                    break;
+
+                case "light_regulation":
+                    coapDevicesHandler.registerLightRegulation(ip);
+                    success = true;
+                    break;
             }
 
             if (success)
@@ -53,6 +93,16 @@ public class CoAPRegistrationServer extends CoapServer {
             switch (deviceType) {
                 case "air_quality":
                     coapDevicesHandler.unregisterWaterQuality(ip);
+                    success = true;
+                    break;
+
+                case "air_conditioning":
+                    coapDevicesHandler.unregisterAirConditioning(ip);
+                    success = true;
+                    break;
+
+                case "light_regulation":
+                    coapDevicesHandler.unregisterLightRegulation(ip);
                     success = true;
                     break;
             }

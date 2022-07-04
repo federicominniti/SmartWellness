@@ -1,2 +1,2 @@
-extern bool pump_on;
+extern bool buffer_release;
 extern bool manual;
