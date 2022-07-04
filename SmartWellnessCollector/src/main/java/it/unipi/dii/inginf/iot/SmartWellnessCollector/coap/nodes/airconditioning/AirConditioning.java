@@ -25,7 +25,7 @@ public class AirConditioning {
 
     private AtomicInteger temperature;
     private Map<Integer, DataSample> lastSamples;
-    private static final AtomicInteger UPPER_BOUND = new AtomicInteger(22);
+    private static final AtomicInteger UPPER_BOUND = new AtomicInteger(20);
     private static final AtomicInteger NORMAL_LEVEL = new AtomicInteger(18);
 
     private AtomicBoolean acSystemStatus = new AtomicBoolean(false);
