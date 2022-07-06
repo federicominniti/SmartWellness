@@ -174,7 +174,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 		}
 	}
 
-	leds_off(LEDS_RED)
+	leds_off(LEDS_RED);
 
 	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
