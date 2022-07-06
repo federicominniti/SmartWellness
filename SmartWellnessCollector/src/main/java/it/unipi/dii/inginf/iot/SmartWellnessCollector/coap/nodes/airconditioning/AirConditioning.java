@@ -45,13 +45,13 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
                     if(!coapResponse.isSuccess())
-                        System.out.print("[ERROR] AC System: PUT request failed>");
+                        logger.logError("AC System: PUT request failed");
                 }
             }
 
             @Override
             public void onError() {
-                System.err.print("[ERROR] AC System " + actuator.getURI() + "]>");
+                logger.logError("AC System " + actuator.getURI() + "]");
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
@@ -66,13 +66,13 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
                     if(!coapResponse.isSuccess())
-                        System.out.print("[ERROR] AC System: PUT request failed>");
+                        logger.logError("AC System: PUT request failed");
                 }
             }
 
             @Override
             public void onError() {
-                System.err.print("[ERROR] AC System " + actuator.getURI() + "]>");
+                logger.logError("AC System " + actuator.getURI());
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
 
@@ -95,16 +95,16 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                     manual.set(temperatureSampleManual);
                     actuatorStatus.set(!actuatorStatus.get());
                     if (actuatorStatus.get())
-                        System.out.println("MANUAL: AC is ON");
+                        logger.logStatus("MANUAL: AC is ON");
                     else
-                        System.out.println("MANUAL: AC is OFF");
+                        logger.logStatus("MANUAL: AC is OFF");
                 }
                 //System.out.print("\n" + waterQualitySample.toString() + "\n>");
                 // remove old samples from the lastAirQualitySamples map
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
                 //computeAverage();
             } catch (Exception e) {
-                System.out.print("\n[ERROR] The temperature sensor gave non-significant data\n>");
+                logger.logError("The temperature sensor gave non-significant data");
                 e.printStackTrace();
             }
 
@@ -118,7 +118,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 acSystemSwitch(true);
                 //}
                 actuatorStatus.set(true);
-                System.out.println("AC is now ON");
+                logger.logStatus("AC is now ON");
             }
 
             // We don't turn off the ventilation as soon as the value is lower than the upper bound,
@@ -129,7 +129,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 acSystemSwitch(false);
                 //}
                 actuatorStatus.set(false);
-                System.out.println("AC is now OFF");
+                logger.logStatus("AC is now OFF");
             }
 
             //else
@@ -139,7 +139,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         }
 
         public void onError() {
-            System.err.print("\n[ERROR] Air conditioning " + sensor.getURI() + "]\n>");
+            logger.logError("Air conditioning " + sensor.getURI());
         }
     }
 

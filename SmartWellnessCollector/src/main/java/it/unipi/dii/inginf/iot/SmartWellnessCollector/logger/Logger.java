@@ -47,8 +47,10 @@ public class Logger {
         logger.info("[" + topic + " - " + timestamp + "] " + message);
     }
 
-    public void logInfo (String message)
+    public void logInfo(String message)
     {
-        log("INFO", message);
+        log("DATA", message);
     }
+    public void logStatus(String message) { log("STATUS", message); }
+    public void logError(String message) { log("ERROR", message); }
 }

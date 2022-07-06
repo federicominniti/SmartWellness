@@ -46,13 +46,13 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
                     if(!coapResponse.isSuccess())
-                        System.out.print("\n[ERROR] Buffer Regulator: PUT request failed\n>");
+                        logger.logError("Buffer Regulator: PUT request failed");
                 }
             }
 
             @Override
             public void onError() {
-                System.err.print("\n[ERROR] Buffer Regulator " + actuator.getURI() + "]\n>");
+                logger.logError("Buffer Regulator " + actuator.getURI());
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
@@ -71,9 +71,9 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                     manual.set((waterQualitySample.getManual() == 1 ? true:false));
                     actuatorStatus.set(!actuatorStatus.get());
                     if (actuatorStatus.get())
-                        System.out.println("MANUAL: buffer regulator ON");
+                        logger.logStatus("MANUAL: buffer regulator ON");
                     else
-                        System.out.println("MANUAL: buffer regulator OFF");
+                        logger.logStatus("MANUAL: buffer regulator OFF");
                 }
 
                 //System.out.print("\n" + waterQualitySample.toString() + "\n>");
@@ -81,7 +81,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
                 //computeAverage();
             } catch (Exception e) {
-                System.out.print("\n[ERROR] The CO2 sensor gave non-significant data\n>");
+                logger.logError("[ERROR] The PH sensor gave non-significant data");
                 e.printStackTrace();
             }
 
@@ -95,7 +95,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 bufferRegulatorSwitch(true);
                 //}
                 actuatorStatus.set(true);
-                System.out.println("Buffer regulator ON");
+                logger.logStatus("Buffer regulator ON");
             }
 
             // We don't turn off the ventilation as soon as the value is lower than the upper bound,
@@ -106,7 +106,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 bufferRegulatorSwitch(false);
                 //}
                 actuatorStatus.set(false);
-                System.out.println("Buffer regulator OFF");
+                logger.logStatus("Buffer regulator OFF");
             }
 
             //else
@@ -116,7 +116,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
         }
 
         public void onError() {
-            System.err.print("\n[ERROR] Water Quality " + sensor.getURI() + "]\n>");
+            logger.logError("Water Quality " + sensor.getURI());
         }
     }
 }

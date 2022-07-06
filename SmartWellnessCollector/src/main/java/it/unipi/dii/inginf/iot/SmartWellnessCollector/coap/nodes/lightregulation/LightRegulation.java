@@ -35,23 +35,23 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
                     if(!coapResponse.isSuccess())
-                        System.out.println("[ERROR] Light System: PUT request failed");
+                        logger.logError("Light System: PUT request failed");
                 }
             }
 
             @Override
             public void onError() {
-                System.err.println("[ERROR] Light System " + actuator.getURI());
+                logger.logError("Light System " + actuator.getURI());
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
 
     private int manualSwitchSystem(){
         if(actuatorStatus.get() == 0){
-            System.out.println("[MANUAL] Luce attiva");
+            logger.logStatus("MANUAL: Gym light is ON");
             return 2;
         } else{
-            System.out.println("[MANUAL] Luce spenta");
+            logger.logStatus("MANUAL: Gym light is OFF");
             return 0;
         }
     }
@@ -77,7 +77,7 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
                 //computeAverage();
             } catch (Exception e) {
-                System.out.println("[ERROR] The CO2 sensor gave non-significant data");
+                logger.logError("The lux sensor gave non-significant data");
                 e.printStackTrace();
             }
 
@@ -85,21 +85,21 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
                 if(sensedData.get() > LOWER_BOUND_MAX_LUX.get()){
                     actuatorStatus.set(0);
                     lightSystemSwitch(actuatorStatus.get());
-                    System.out.println("Luce spenta");
+                    logger.logStatus("Gym light is OFF");
                 } else if(sensedData.get() < LOWER_BOUND_MAX_LUX.get() && sensedData.get() > LOWER_BOUND_INTERMEDIATE_LUX.get()){
                     actuatorStatus.set(1);
                     lightSystemSwitch(actuatorStatus.get());
-                    System.out.println("Luce bassa");
+                    logger.logStatus("Gym light is LOW");
                 } else if(sensedData.get() < LOWER_BOUND_INTERMEDIATE_LUX.get()){
                     actuatorStatus.set(2);
                     lightSystemSwitch(actuatorStatus.get());
-                    System.out.println("Luce alta");
+                    logger.logStatus("Gym light is HIGH");
                 }
             }
         }
 
         public void onError() {
-            System.err.println("[ERROR] Light Registration " + sensor.getURI());
+            logger.logError("Light Registration " + sensor.getURI());
         }
     }
 
