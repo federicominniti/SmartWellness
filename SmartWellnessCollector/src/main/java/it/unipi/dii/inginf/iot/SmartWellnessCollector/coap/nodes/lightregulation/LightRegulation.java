@@ -24,7 +24,6 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
         super(new AtomicInteger(0), new AtomicInteger(0));
         LOWER_BOUND_MAX_LUX.set(lowB);
         LOWER_BOUND_INTERMEDIATE_LUX.set(lowBInt);
-        observeRelation = sensor.observe(new LuxCoapHandler());
     }
 
     private void lightSystemSwitch(int level) {

@@ -20,27 +20,28 @@ public class CoapNodesServer extends CoapServer {
 
     public CoapNodesServer() throws SocketException {
         this.add(new CoapRegistrationResource());
-        waterQuality = new WaterQuality();
+        waterQuality = new WaterQuality((float)7.2, (float)7.6);
         airConditioning = new AirConditioning(18, 19);
         lightRegulation = new LightRegulation(350, 1500);
     }
 
     /*      REGISTER AND UNREGISTER DEVICES     */
-    public void registerWaterQuality(String ip) {
-        waterQuality.registerWaterQuality(ip);
-    }
 
     /*      GET MEASURES FROM SENSORS     */
     public float getPHLevel() {
-        return waterQuality.getPHLevel();
+        return waterQuality.getSensedData().get();
     }
 
     public void setBufferRegulator(boolean on) {
         waterQuality.bufferRegulatorSwitch(on);
     }
 
-    public void unregisterWaterQuality(String ip) {
-        waterQuality.unregisterWaterQuality(ip);
+    public boolean getBufferRegulatorStatus() {
+        return waterQuality.getActuatorStatus().get();
+    }
+
+    public void setBufferRegulatorStatus(boolean on) {
+        waterQuality.bufferRegulatorSwitch(on);
     }
 
     /*      REGISTER AND UNREGISTER DEVICES     */
@@ -64,10 +65,6 @@ public class CoapNodesServer extends CoapServer {
 
     public int getLuxValue() {
         return lightRegulation.getSensedData().get();
-    }
-
-    public void unregisterLightRegulation(String ip) {
-        lightRegulation.unregisterLightRegulation(ip);
     }
 
     public void setGymLowerBoundMaxLux(int maxLux) {
