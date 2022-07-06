@@ -34,7 +34,7 @@
 #define LOG_LEVEL LOG_LEVEL_APP
 
 //Simulation interval between sensor measurements
-#define SIMULATION_INTERVAL 10
+#define SIMULATION_INTERVAL 6
 
 //Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
