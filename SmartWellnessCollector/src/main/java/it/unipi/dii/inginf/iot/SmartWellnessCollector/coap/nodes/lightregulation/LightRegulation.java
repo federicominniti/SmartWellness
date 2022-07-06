@@ -1,5 +1,6 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation;
 
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
@@ -15,76 +16,22 @@ import java.util.ArrayList;
 import java.sql.Timestamp;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
-public class LightRegulation {
-    private CoapClient crepuscularSensor;
-    private CoapClient lightSystem;
-    private CoapObserveRelation observeLUX;
-    private Logger logger;
+public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
+    private AtomicInteger LOWER_BOUND_MAX_LUX = new AtomicInteger();
+    private AtomicInteger LOWER_BOUND_INTERMEDIATE_LUX = new AtomicInteger();
 
-    AtomicInteger luxValue = new AtomicInteger();
-    private List<DataSample> lastSamples;
-    private static AtomicInteger LOWER_BOUND_MAX_LUX = new AtomicInteger(1500);
-    private static AtomicInteger LOWER_BOUND_INTERMEDIATE_LUX = new AtomicInteger(350);
-
-    private AtomicInteger lightLevel = new AtomicInteger(0);
-    private AtomicBoolean manualLight = new AtomicBoolean(false);
-
-    private Gson parser;
-
-    public LightRegulation() {
-        int startingValue = (int)6.8;
-        luxValue = new AtomicInteger(startingValue);
-
-        lastSamples = new ArrayList<DataSample>();
-        logger = Logger.getInstance();
-        parser = new Gson();
+    public LightRegulation(int lowB, int lowBInt) {
+        super(new AtomicInteger(0), new AtomicInteger(0));
+        LOWER_BOUND_MAX_LUX.set(lowB);
+        LOWER_BOUND_INTERMEDIATE_LUX.set(lowBInt);
+        observeRelation = sensor.observe(new LuxCoapHandler());
     }
 
-    public void registerLightRegulation(String ip) {
-        System.out.println("[REGISTRATION] The Water Quality system: [" + ip + "] is now registered");
-        crepuscularSensor = new CoapClient("coap://[" + ip + "]/light_regulation/lux");
-
-        lightSystem = new CoapClient("coap://[" + ip + "]/light_regulation/light");
-
-        observeLUX = crepuscularSensor.observe(new luxCoapHandler());
-    }
-
-    // TO DO vedere se usare computeAverage
-    private void computeAverage() {
-        int size = lastSamples.size();
-        float sum = 0;
-        for(int i = 0; i<lastSamples.size(); i++){
-            sum += lastSamples.get(i).getValue();
-        }
-
-        luxValue.set((int)Math.floor(sum / size));
-    }
-    
-    public void unregisterLightRegulation(String ip) {
-        //for (int i = 0; i < clientCO2SensorList.size(); i++) {
-        if (crepuscularSensor.getURI().equals(ip)) {
-            observeLUX.proactiveCancel();
-        }
-        //}
-    }
-
-    public int getLuxValue() {
-        return luxValue.get();
-    }
-
-    public void setGymLowerBoundMaxLux(int maxLux){
-        LOWER_BOUND_MAX_LUX.set(maxLux);
-    }
-
-    public void setGymLowerBoundIntermediateLux(int intermediateLux){
-        LOWER_BOUND_INTERMEDIATE_LUX.set(intermediateLux);
-    }
-
-    private void lightSystemSwitch(final CoapClient clientLightSystem, int level) {
-        if(clientLightSystem == null)
+    private void lightSystemSwitch(int level) {
+        if(actuator == null)
             return;
         String msg = "level=" + level;
-        clientLightSystem.put(new CoapHandler() {
+        actuator.put(new CoapHandler() {
             @Override
             public void onLoad(CoapResponse coapResponse) {
                 if(coapResponse != null) {
@@ -95,13 +42,13 @@ public class LightRegulation {
 
             @Override
             public void onError() {
-                System.err.println("[ERROR] Light System " + clientLightSystem.getURI());
+                System.err.println("[ERROR] Light System " + actuator.getURI());
             }
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
 
-    private int manualLightSwitchSystem(){
-        if(lightLevel.get() == 0){
+    private int manualSwitchSystem(){
+        if(actuatorStatus.get() == 0){
             System.out.println("[MANUAL] Luce attiva");
             return 2;
         } else{
@@ -110,7 +57,7 @@ public class LightRegulation {
         }
     }
 
-    private class luxCoapHandler implements CoapHandler { 
+    private class LuxCoapHandler implements CoapHandler {
 		public void onLoad(CoapResponse response) {
             String responseString = new String(response.getPayload());
             logger.logInfo(responseString);
@@ -118,15 +65,14 @@ public class LightRegulation {
                 DataSample lightRegulationSample = parser.fromJson(responseString, DataSample.class);
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 lightRegulationSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                if(lightRegulationSample.getManual() == 1 && manualLight.get() == false){
-                    manualLight.set(true);
-                    lightLevel.set(manualLightSwitchSystem());
-                } else if(lightRegulationSample.getManual() == 0 && manualLight.get() == true){
-                    manualLight.set(false);
-                    lightLevel.set(manualLightSwitchSystem());
+                if(lightRegulationSample.getManual() == 1 && manual.get() == false){
+                    manual.set(true);
+                    actuatorStatus.set(manualSwitchSystem());
+                } else if(lightRegulationSample.getManual() == 0 && manual.get() == true){
+                    manual.set(false);
+                    actuatorStatus.set(manualSwitchSystem());
                 }
-                lastSamples.add(lightRegulationSample);
-                luxValue.set((int)lightRegulationSample.getValue());
+                sensedData.set((int)lightRegulationSample.getValue());
                 //System.out.print("\n" + waterQualitySample.toString() + "\n>");
                 // remove old samples from the lastAirQualitySamples map
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
@@ -136,25 +82,50 @@ public class LightRegulation {
                 e.printStackTrace();
             }
 
-            if(manualLight.get() == false){
-                if(luxValue.get() > LOWER_BOUND_MAX_LUX.get()){
-                    lightLevel.set(0);
-                    lightSystemSwitch(lightSystem, lightLevel.get());
+            if(manual.get() == false){
+                if(sensedData.get() > LOWER_BOUND_MAX_LUX.get()){
+                    actuatorStatus.set(0);
+                    lightSystemSwitch(actuatorStatus.get());
                     System.out.println("Luce spenta");
-                } else if(luxValue.get() < LOWER_BOUND_MAX_LUX.get() && getLuxValue() > LOWER_BOUND_INTERMEDIATE_LUX.get()){
-                    lightLevel.set(1);
-                    lightSystemSwitch(lightSystem, lightLevel.get());
+                } else if(sensedData.get() < LOWER_BOUND_MAX_LUX.get() && sensedData.get() > LOWER_BOUND_INTERMEDIATE_LUX.get()){
+                    actuatorStatus.set(1);
+                    lightSystemSwitch(actuatorStatus.get());
                     System.out.println("Luce bassa");
-                } else if(luxValue.get() < LOWER_BOUND_INTERMEDIATE_LUX.get()){
-                    lightLevel.set(2);
-                    lightSystemSwitch(lightSystem, lightLevel.get());
+                } else if(sensedData.get() < LOWER_BOUND_INTERMEDIATE_LUX.get()){
+                    actuatorStatus.set(2);
+                    lightSystemSwitch(actuatorStatus.get());
                     System.out.println("Luce alta");
                 }
             }
         }
 
         public void onError() {
-            System.err.println("[ERROR] Light Registration " + crepuscularSensor.getURI());
+            System.err.println("[ERROR] Light Registration " + sensor.getURI());
         }
+    }
+
+    public int getLowerBoundMaxLux() {
+        return LOWER_BOUND_MAX_LUX.get();
+    }
+
+    public void setLowerBoundMaxLux(int lowerBoundMaxLux) {
+        LOWER_BOUND_MAX_LUX.set(lowerBoundMaxLux);
+    }
+
+    public int getLowerBoundIntermediateLux() {
+        return LOWER_BOUND_INTERMEDIATE_LUX.get();
+    }
+
+    public void setLowerBoundIntermediateLux(int lowerBoundIntermediateLux) {
+        LOWER_BOUND_INTERMEDIATE_LUX.set(lowerBoundIntermediateLux);
+    }
+
+    public void registerLightRegulation(String ip) {
+        registerNode(ip, "light_regulation", "lux", "light");
+        observeRelation = sensor.observe(new LuxCoapHandler());
+    }
+
+    public void unregisterLightRegulation(String ip) {
+        unregisterNode(ip);
     }
 }

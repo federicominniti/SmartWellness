@@ -21,11 +21,13 @@ import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
 
 public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
-    public AirConditioning(int lowB, int upB, int normal) {
-        super(new AtomicInteger(upB),
-                new AtomicInteger(lowB),
-                new AtomicInteger(normal),
-                new AtomicBoolean(false));
+    private AtomicInteger NORMAL_LEVEL = new AtomicInteger();
+    private AtomicInteger UPPER_BOUND = new AtomicInteger();
+
+    public AirConditioning(int normal, int upB) {
+        super(new AtomicInteger(), new AtomicBoolean());
+        NORMAL_LEVEL.set(normal);
+        UPPER_BOUND.set(upB);
     }
 
     public void registerACSystem(String ip) {
@@ -86,7 +88,6 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 DataSample temperatureSample = parser.fromJson(responseString, DataSample.class);
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 temperatureSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                lastSamples.add(temperatureSample);
                 sensedData.set((int)temperatureSample.getValue());
 
                 boolean temperatureSampleManual = (temperatureSample.getManual() == 1 ? true:false);
@@ -142,4 +143,19 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         }
     }
 
+    public int getNORMAL_LEVEL() {
+        return NORMAL_LEVEL.get();
+    }
+
+    public void setNORMAL_LEVEL(int normal) {
+        NORMAL_LEVEL.set(normal);
+    }
+
+    public int getUPPER_BOUND() {
+        return UPPER_BOUND.get();
+    }
+
+    public void setUPPER_BOUND(int upper) {
+        UPPER_BOUND.set(upper);
+    }
 }

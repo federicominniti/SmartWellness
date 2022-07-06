@@ -25,28 +25,16 @@ public abstract class CoapNode<SensedDataType, ActuatorStatusType> {
     protected Logger logger;
 
     protected SensedDataType sensedData;
-    protected List<DataSample> lastSamples;
-
-    protected SensedDataType UPPER_BOUND;
-    protected SensedDataType LOWER_BOUND;
-    protected SensedDataType NORMAL_LEVEL;
 
     protected ActuatorStatusType actuatorStatus;
     protected AtomicBoolean manual;
 
     protected Gson parser;
 
-    protected CoapNode(SensedDataType upperBound,
-                   SensedDataType lowerBound,
-                   SensedDataType normalLevel,
-                   ActuatorStatusType status) {
-
-        UPPER_BOUND = upperBound;
-        LOWER_BOUND = lowerBound;
-        NORMAL_LEVEL = normalLevel;
-        actuatorStatus = status;
+    protected CoapNode(SensedDataType startingValue, ActuatorStatusType status) {
         manual = new AtomicBoolean(false);
-        lastSamples = new ArrayList();
+        sensedData = startingValue;
+        actuatorStatus = status;
         logger = Logger.getInstance();
         parser = new Gson();
     }
@@ -61,30 +49,6 @@ public abstract class CoapNode<SensedDataType, ActuatorStatusType> {
         if (sensor.getURI().equals(ip)) {
             observeRelation.proactiveCancel();
         }
-    }
-
-    public SensedDataType getUPPER_BOUND() {
-        return UPPER_BOUND;
-    }
-
-    public void setUPPER_BOUND(SensedDataType UPPER_BOUND) {
-        this.UPPER_BOUND = UPPER_BOUND;
-    }
-
-    public SensedDataType getLOWER_BOUND() {
-        return LOWER_BOUND;
-    }
-
-    public void setLOWER_BOUND(SensedDataType LOWER_BOUND) {
-        this.LOWER_BOUND = LOWER_BOUND;
-    }
-
-    public SensedDataType getNORMAL_LEVEL() {
-        return NORMAL_LEVEL;
-    }
-
-    public void setNORMAL_LEVEL(SensedDataType NORMAL_LEVEL) {
-        this.NORMAL_LEVEL = NORMAL_LEVEL;
     }
 
     public ActuatorStatusType getActuatorStatus() {
