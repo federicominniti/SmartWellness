@@ -5,7 +5,7 @@
 #include "contiki.h"
 #include "coap-engine.h"
 #include "sys/etimer.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 #include "coap-blocking-api.h"
 #include "os/dev/button-hal.h"
 
@@ -159,7 +159,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 
-	while(!is_connected() && !registered){
+	while(!is_connected() || !registered){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&registration_led_timer)){

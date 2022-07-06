@@ -6,7 +6,7 @@
 #include "coap-engine.h"
 #include "sys/etimer.h"
 #include "sys/clock.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 #include "coap-blocking-api.h"
 #include "os/dev/button-hal.h"
 
@@ -21,6 +21,7 @@
 
 #include "sys/log.h"
 
+//SENSOR NUMBER 7
 
 //Observing server End-Point address
 #define SERVER_EP "coap://[fd00::1]:5683"
@@ -161,17 +162,19 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	etimer_set(&registration_led_timer, 1*CLOCK_SECOND);
 
-	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+	leds_on(LEDS_RED);
 
-	while(!is_connected() && !registered){
+	while(!is_connected() || !registered){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&registration_led_timer)){
-				leds_toggle(LEDS_NUM_TO_MASK(LEDS_RED));
+				leds_toggle(LEDS_RED);
 				etimer_restart(&registration_led_timer);
 			}
 		}
 	}
+
+	leds_off(LEDS_RED)
 
 	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
@@ -181,15 +184,15 @@ PROCESS_THREAD(blinking_led, ev, data)
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&buffer_led_timer)){
 				if(buffer_release){
-					leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
+					leds_on(LEDS_RED);
 				}
-				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
+				leds_on(LEDS_GREEN);
 				etimer_restart(&buffer_led_timer);
 				etimer_restart(&led_on_timer);
 			}
 			if(etimer_expired(&led_on_timer)){
-				leds_off(LEDS_NUM_TO_MASK(LEDS_RED));
-				leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+				leds_off(LEDS_RED);
+				leds_off(LEDS_GREEN);
 			}
 		}
 	}
