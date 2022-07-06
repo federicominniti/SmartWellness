@@ -138,10 +138,12 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
 	while(1) {
 		PROCESS_WAIT_EVENT();
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
-			//handle manual pump activation with the button
 			if(ev == button_hal_press_event){
-				manual = !manual;
-				ac_on = !ac_on;
+				button_hal_button_t* btn = (button_hal_button_t*)data;
+				if (btn->unique_id == BOARD_BUTTON_HAL_INDEX_KEY_LEFT) {
+					manual = !manual;
+					ac_on = !ac_on;
+				}
 			}
 			res_temperature_sensor.trigger();
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
