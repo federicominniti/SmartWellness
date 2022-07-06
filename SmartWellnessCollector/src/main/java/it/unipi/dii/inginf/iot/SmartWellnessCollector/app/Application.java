@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import io.netty.channel.CoalescingBufferQueue;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.CoAPRegistrationServer;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.CoapNodesServer;
 
 public class Application
 {
     public static void main( String[] args ) throws Exception {
-        CoAPRegistrationServer coapRegistrationServer = new CoAPRegistrationServer();
-        coapRegistrationServer.start();
+        CoapNodesServer coapNodesServer = new CoapNodesServer();
+        coapNodesServer.start();
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         String command;
@@ -32,14 +32,14 @@ public class Application
                         printUsage();
                         break;
                     case "get_gym_temperature":
-                        temp = coapRegistrationServer.getGymTemperature();
+                        temp = coapNodesServer.getGymTemperature();
                         System.out.println("Gym temperature is " + temp);
                         break;
 
                     case "set_gym_ac_temperature":
                         temp = Integer.parseInt(parts[1]);
                         System.out.println("Setting gym AC temperature to " + temp);
-                        coapRegistrationServer.setGymACTemperature(temp);
+                        coapNodesServer.setGymACTemperature(temp);
                         System.out.println("done!");
                         break;
 

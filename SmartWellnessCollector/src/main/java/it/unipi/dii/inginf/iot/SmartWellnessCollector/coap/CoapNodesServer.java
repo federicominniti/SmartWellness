@@ -4,49 +4,82 @@ import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.CoAP;
 import org.eclipse.californium.core.server.resources.CoapExchange;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoAPNodesHandler;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.waterquality.WaterQuality;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.airconditioning.AirConditioning;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation.LightRegulation;
 
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-public class CoAPRegistrationServer extends CoapServer {
-    private final static CoAPNodesHandler coapDevicesHandler = CoAPNodesHandler.getInstance();
+public class CoapNodesServer extends CoapServer {
+    private WaterQuality waterQuality;
+    private AirConditioning airConditioning;
+    private LightRegulation lightRegulation;
 
-    public CoAPRegistrationServer() throws SocketException {
+    public CoapNodesServer() throws SocketException {
         this.add(new CoapRegistrationResource());
+        waterQuality = new WaterQuality();
+        airConditioning = new AirConditioning(18, 19, 18);
+        lightRegulation = new LightRegulation();
     }
 
-    // GET measures from sensors
+    /*      REGISTER AND UNREGISTER DEVICES     */
+    public void registerWaterQuality(String ip) {
+        waterQuality.registerWaterQuality(ip);
+    }
+
+    /*      GET MEASURES FROM SENSORS     */
     public float getPHLevel() {
-        return coapDevicesHandler.getPHLevel();
+        return waterQuality.getPHLevel();
     }
+
+    public void setBufferRegulator(boolean on) {
+        waterQuality.bufferRegulatorSwitch(on);
+    }
+
+    public void unregisterWaterQuality(String ip) {
+        waterQuality.unregisterWaterQuality(ip);
+    }
+
+    /*      REGISTER AND UNREGISTER DEVICES     */
+
+    /*      GET MEASURES FROM SENSORS     */
     public int getGymTemperature() {
-        return coapDevicesHandler.getGymTemperature();
-    }
-
-    public int getGymACTemperature() {
-        return coapDevicesHandler.getGymACTemperature();
-    }
-
-    public void setGymMaxTemperature(int temp) {
-        coapDevicesHandler.setGymMaxTemperature(temp);
+        return airConditioning.getSensedData().get();
     }
 
     public void setGymACTemperature(int temp) {
-        coapDevicesHandler.setGymACTemperature(temp);
+        airConditioning.setNORMAL_LEVEL(new AtomicInteger(temp));
     }
 
-    public int getLuxValue(){
-        return coapDevicesHandler.getLuxValue();
+    public int getGymACTemperature() {
+        return airConditioning.getNORMAL_LEVEL().get();
+    }
+
+    public void setGymMaxTemperature(int temp) {
+        airConditioning.setUPPER_BOUND(new AtomicInteger(temp));
+    }
+
+    public void registerLightRegulation(String ip) {
+        lightRegulation.registerLightRegulation(ip);
+    }
+
+    public int getLuxValue() {
+        return lightRegulation.getLuxValue();
+    }
+
+    public void unregisterLightRegulation(String ip) {
+        lightRegulation.unregisterLightRegulation(ip);
     }
 
     public void setGymLowerBoundMaxLux(int maxLux) {
-        coapDevicesHandler.setGymLowerBoundMaxLux(maxLux);
+        lightRegulation.setGymLowerBoundMaxLux(maxLux);
     }
 
     public void setGymLowerBoundIntermediateLux(int intermediateLux) {
-        coapDevicesHandler.setGymLowerBoundIntermediateLux(intermediateLux);
+        lightRegulation.setGymLowerBoundIntermediateLux(intermediateLux);
     }
 
     class CoapRegistrationResource extends CoapResource {
@@ -62,17 +95,17 @@ public class CoAPRegistrationServer extends CoapServer {
 
             switch (deviceType) {
                 case "water_quality":
-                    coapDevicesHandler.registerWaterQuality(ip);
+                    waterQuality.registerWaterQuality(ip);
                     success = true;
                     break;
 
                 case "air_conditioning":
-                    coapDevicesHandler.registerAirConditioning(ip);
+                    airConditioning.registerACSystem(ip);
                     success = true;
                     break;
 
                 case "light_regulation":
-                    coapDevicesHandler.registerLightRegulation(ip);
+                    lightRegulation.registerLightRegulation(ip);
                     success = true;
                     break;
             }
@@ -92,17 +125,17 @@ public class CoAPRegistrationServer extends CoapServer {
 
             switch (deviceType) {
                 case "air_quality":
-                    coapDevicesHandler.unregisterWaterQuality(ip);
+                    waterQuality.unregisterWaterQuality(ip);
                     success = true;
                     break;
 
                 case "air_conditioning":
-                    coapDevicesHandler.unregisterAirConditioning(ip);
+                    airConditioning.unregisterNode(ip);
                     success = true;
                     break;
 
                 case "light_regulation":
-                    coapDevicesHandler.unregisterLightRegulation(ip);
+                    lightRegulation.unregisterLightRegulation(ip);
                     success = true;
                     break;
             }
