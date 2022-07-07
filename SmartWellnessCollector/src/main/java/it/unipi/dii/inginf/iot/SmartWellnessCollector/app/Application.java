@@ -1,15 +1,11 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.app;
 
-import java.net.SocketException;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-
-import io.netty.channel.CoalescingBufferQueue;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.CoapNodesServer;
-/*
+
 public class Application {
-    public static void main( String[] args ) throws Exception {
+    public static void main(String[] args) throws Exception {
         CoapNodesServer coapNodesServer = new CoapNodesServer();
         coapNodesServer.start();
 
@@ -75,40 +71,5 @@ public class Application {
                 "set_light [R/G/Y]              <--- set light outside of steam bath \n";
 
         System.out.println(output);
-    }
-
-
- */
-
-
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
-public class Application extends javafx.application.Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hello World!");
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
     }
 }
