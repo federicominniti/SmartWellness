@@ -41,8 +41,8 @@ public class MqttHandler implements MqttCallback {
      */
     private void connectToBroker () throws MqttException {
         mqttClient.connect();
-        mqttClient.subscribe(chlorineCollector.SENSOR_TOPIC);
-        System.out.println("Subscribed to topic: " + chlorineCollector.SENSOR_TOPIC);
+        mqttClient.subscribe(chlorineCollector.getSENSOR_TOPIC());
+        System.out.println("Subscribed to topic: " + chlorineCollector.getSENSOR_TOPIC());
     }
 
     /**
@@ -86,9 +86,9 @@ public class MqttHandler implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         String payload = new String(mqttMessage.getPayload());
-        if (topic.equals(chlorineCollector.SENSOR_TOPIC)) {
+        if (topic.equals(chlorineCollector.getSENSOR_TOPIC())) {
             boolean updated = chlorineCollector.processMessage(payload);
-            publishMessage(chlorineCollector.ACTUATOR_TOPIC, (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
+            publishMessage(chlorineCollector.getACTUATOR_TOPIC(), (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
             //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
     }
