@@ -31,7 +31,7 @@ public class MqttHandler implements MqttCallback {
                 System.out.println("Connected to the broker: " + BROKER);
             }
             catch(MqttException me) {
-                System.out.println("I could not connect, Retrying ...");
+                System.out.println("Could not connect, retrying ...");
             }
         }while(!mqttClient.isConnected());
     }
