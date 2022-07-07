@@ -8,8 +8,7 @@ import java.io.InputStreamReader;
 import io.netty.channel.CoalescingBufferQueue;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.CoapNodesServer;
 
-public class Application
-{
+public class Application {
     public static void main( String[] args ) throws Exception {
         CoapNodesServer coapNodesServer = new CoapNodesServer();
         coapNodesServer.start();

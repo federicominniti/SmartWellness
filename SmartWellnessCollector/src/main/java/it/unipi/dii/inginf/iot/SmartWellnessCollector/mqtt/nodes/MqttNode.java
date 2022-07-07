@@ -4,9 +4,9 @@ import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 //import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import com.google.gson.Gson;
 
-public class MqttNode<SensedDataType, ActuatorStatusType> {
-    public final String SENSOR_TOPIC;
-    public final String ACTUATOR_TOPIC;
+public abstract class MqttNode<SensedDataType, ActuatorStatusType> {
+    protected final String SENSOR_TOPIC;
+    protected final String ACTUATOR_TOPIC;
 
     protected ActuatorStatusType actuatorOn;
     protected boolean manual;
@@ -27,6 +27,38 @@ public class MqttNode<SensedDataType, ActuatorStatusType> {
 
     public ActuatorStatusType getActuatorStatus() {
         return actuatorOn;
+    }
+
+    public String getSENSOR_TOPIC() {
+        return SENSOR_TOPIC;
+    }
+
+    public String getACTUATOR_TOPIC() {
+        return ACTUATOR_TOPIC;
+    }
+
+    public ActuatorStatusType getActuatorOn() {
+        return actuatorOn;
+    }
+
+    public void setActuatorOn(ActuatorStatusType actuatorOn) {
+        this.actuatorOn = actuatorOn;
+    }
+
+    public boolean isManual() {
+        return manual;
+    }
+
+    public void setManual(boolean manual) {
+        this.manual = manual;
+    }
+
+    public SensedDataType getActualValue() {
+        return actualValue;
+    }
+
+    public void setActualValue(SensedDataType actualValue) {
+        this.actualValue = actualValue;
     }
 
 }
