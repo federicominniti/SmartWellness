@@ -56,7 +56,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
 
-    public void acSetTemperature(int temp) {
+    public void setACTemperature(int temp) {
         if(actuator == null)
             return;
 

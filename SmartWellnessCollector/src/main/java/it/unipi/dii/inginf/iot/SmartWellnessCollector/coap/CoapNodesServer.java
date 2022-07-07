@@ -60,7 +60,7 @@ public class CoapNodesServer extends CoapServer {
     }
 
     public void setGymMaxTemperature(int temp) {
-        airConditioning.setUPPER_BOUND(temp);
+        airConditioning.setACTemperature(temp);
     }
 
     public int getLuxValue() {
