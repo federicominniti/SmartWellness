@@ -91,13 +91,9 @@ static bool manual = false;
 static mqtt_status_t status;
 static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
-static float random_float(float a, float b) {
-    float random = ((float) rand()) / (float) RAND_MAX;
-    float diff = b - a;
-    float r = random * diff;
- 
-    float res = a + r;
-    return res;
+int random_in_range(int a, int b) {
+    int v = random_rand() % (b-a);
+    return v + a;
 }
 
 //CONTIKI DOES NOT SUPPORT THE FLOAT FORMAT
