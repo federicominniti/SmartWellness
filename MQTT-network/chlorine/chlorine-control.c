@@ -11,12 +11,12 @@
 #include "dev/leds.h"
 #include "os/sys/log.h"
 #include "mqtt-client.h"
+#include "random.h"
 
 #include <string.h>
 #include <strings.h>
 
 #include <sys/node-id.h>
-#include <time.h>
 
 #define LOG_MODULE "chlorine-control"
 #ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
@@ -85,7 +85,10 @@ static bool increase_chlorine = false;
 #define MAX_CHLORINE 20
 static float chlorine_level = (float)1.5;
 static float variation = 0;
-static bool manual = 0;
+static bool manual = false;
+
+static mqtt_status_t status;
+static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
 //TODO GESTIONE PRESSIONE BOTTONE
 //TODO GESTIONE LED
@@ -184,12 +187,37 @@ static bool have_connectivity(void) {
 	return true;
 }
 
+static void manual_handler(){
+    manual = !manual;
+	increase_chlorine = !increase_chlorine;
+}
+
+static void simulate_chlorine_level(){
+	// simulate sensed values		
+	//TODO GESTIONE MANUAL CHE RIMANGA NEL RANGE SE c'è ARRIVATO	
+	float old_chlorine = chlorine_level;
+	if(increase_chlorine) {
+		// if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
+		// the pH remains in the right range
+		if (old_chlorine >= 1.0 && old_chlorine <= 3.0) {
+			chlorine_level = (float)random_in_range(1, 3);
+		} else {
+			variation = (float)random_in_range(2, 8) * 0.1;
+			chlorine_level = old_chlorine + variation;
+		}
+			
+	} else {
+		variation = (float)random_in_range(2, 8) * 0.1;
+		chlorine_level = old_chlorine - variation;
+	}
+
+	LOG_INFO("New chlorine value: %u.%u\n", digitsBefore(chlorine_level), digitsAfter(chlorine_level));				
+}
+
+
 PROCESS_THREAD(chlorine_control_process, ev, data) {
 
 	PROCESS_BEGIN();
-
-	mqtt_status_t status;
-	char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
 	// Initialize the ClientID as MAC address
 	snprintf(client_id, BUFFER_SIZE, "%02x%02x%02x%02x%02x%02x",
@@ -210,7 +238,7 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 	while(1) {
 		PROCESS_YIELD();
 
-		if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL) {			  			  
+		if((ev == PROCESS_EVENT_TIMER && data == &periodic_timer) || ev == PROCESS_EVENT_POLL || ev == button_hal_press_event) {			  			  
 			if(state==STATE_INIT) {
 				if(have_connectivity()==true) { 
 					state = STATE_NET_OK;
@@ -238,23 +266,16 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 			if(state == STATE_SUBSCRIBED) {
 				sprintf(pub_topic, "%s", "ppm");
 
-				// simulate sensed values		
-                srand(time(NULL));		
-				//TODO GESTIONE MANUAL CHE RIMANGA NEL RANGE SE c'è ARRIVATO			
-				variation = random_float(0.2, 0.8); 	// a value in [1,10]
-				if (increase_chlorine) {
-					chlorine_level = chlorine_level + variation;
-				}
-				else {
-					chlorine_level = chlorine_level - variation;
-				}
+				simulate_chlorine_level();
 
-				LOG_INFO("New chlorine value: %u.%u\n", digitsBefore(chlorine_level), digitsAfter(chlorine_level));
-				
                 snprintf(app_buffer, APP_BUFFER_SIZE, 
                             "{\"node\": %d, \"value\": %u.%u, \"manual\": %d, \"sensorType\": \"%s\"}", 
                             (unsigned int) node_id, digitsBefore(chlorine_level), digitsAfter(chlorine_level), 
                             (int)manual, sensorType);
+
+				if(ev == button_hal_press_event){
+					manual_handler();
+				}
 
 				mqtt_publish(&conn, NULL, pub_topic, (uint8_t *)app_buffer, strlen(app_buffer), 
                                 MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);
