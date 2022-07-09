@@ -86,9 +86,13 @@ public class MqttHandler implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         String payload = new String(mqttMessage.getPayload());
+        System.out.println("received " + payload);
         if (topic.equals(chlorineCollector.getSENSOR_TOPIC())) {
             boolean updated = chlorineCollector.processMessage(payload);
-            publishMessage(chlorineCollector.getACTUATOR_TOPIC(), (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
+            if(updated){
+                publishMessage(chlorineCollector.getACTUATOR_TOPIC(), (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
+                System.out.println("Chlorine regulator: " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
+            }
             //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
     }

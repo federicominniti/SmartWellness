@@ -110,10 +110,7 @@ unsigned short digitsAfter(float f) {
 
 // Incoming message handling
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk, uint16_t chunk_len) {
-	LOG_INFO("Message received: topic='%s' (len=%u), chunk_len=%u\n", topic, topic_len, chunk_len);
-
 	if(strcmp(topic, "chlorine_regulator") == 0) {
-		LOG_INFO("Received Actuator command\n");
 		if(strcmp((const char*) chunk, "ON") == 0) {
 			increase_chlorine = true;
             LOG_INFO("Chlorine regulator switched ON\n");
@@ -266,6 +263,8 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
                             "{\"node\": %d, \"value\": %u.%u, \"manual\": %d, \"sensorType\": \"%s\"}", 
                             (unsigned int) node_id, digitsBefore(chlorine_level), digitsAfter(chlorine_level), 
                             (int)manual, sensorType);
+
+				LOG_INFO("message: %s" app_buffer)
 
 				if(ev == button_hal_press_event){
 					manual_handler();
