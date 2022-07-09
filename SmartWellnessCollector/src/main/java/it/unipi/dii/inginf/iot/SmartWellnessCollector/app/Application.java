@@ -3,11 +3,13 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.app;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.CoapNodesServer;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.MqttHandler;
 
 public class Application {
     public static void main(String[] args) throws Exception {
         CoapNodesServer coapNodesServer = new CoapNodesServer();
         coapNodesServer.start();
+        MqttHandler MqttHandler = new MqttHandler();
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         String command;
