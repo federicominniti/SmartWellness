@@ -6,6 +6,7 @@
 #include <math.h>
 #include "contiki.h"
 #include "coap-engine.h"
+#include "random.h"
 #include "dev/leds.h"
 #include "sys/node-id.h"
  
@@ -31,27 +32,15 @@ EVENT_RESOURCE(res_crepuscular_sensor,
 static int lux = 1600;
 static char sensorType[20] = "crepuscularSensor";
  
-static bool simulate_lux_values () { 
-	bool updated = false;
-	int old_lux = lux;
- 
-    srand(time(NULL));
- 
+static void simulate_lux_values () {
 	//In a real environment the luxe range is 0 - 25000
-	lux = rand()%1850;
- 
-	if(old_lux != lux)
-		updated = true;
- 
-	return updated;
+    lux = random_rand() % 1850;
 }
- 
+
 static void lux_event_handler(void) {
-	if (simulate_lux_values()) { // if the value is changed
-		LOG_INFO("LUX: %d \n", lux);
-		// Notify all the observers
-    	coap_notify_observers(&res_crepuscular_sensor);
-	}
+    simulate_lux_values();
+	LOG_INFO("LUX: %d \n", lux);
+    coap_notify_observers(&res_crepuscular_sensor);
 }
  
  

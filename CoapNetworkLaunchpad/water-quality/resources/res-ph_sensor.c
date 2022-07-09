@@ -47,10 +47,7 @@ unsigned short digitsAfter(float f){
     return(10*(f-digitsBefore(f)));
 }
  
-static bool simulate_ph_values () { 
-    bool updated = false;
-    float old_ph = ph_level;
- 
+static void simulate_ph_values () {
     float value = 0;
  
 	if(buffer_release) {
@@ -64,22 +61,15 @@ static bool simulate_ph_values () {
  
 	} else {
         value = random_in_range(1,2) / 10.0;
-        ph_level = old_ph - value;
-        LOG_INFO("value: %u.%u\n", digitsBefore(value), digitsAfter(value));
+        ph_level = ph_level - value;
     }
- 
-	if(old_ph != ph_level)
-		updated = true;
- 
-	return updated;
 }
  
 static void ph_event_handler(void) {
-	if (simulate_ph_values()) { // if the value is changed
-		LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
-		// Notify all the observers
-    	coap_notify_observers(&res_ph_sensor);
-	}
+	simulate_ph_values()
+	LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
+	// Notify all the observers
+    coap_notify_observers(&res_ph_sensor);
 }
  
  

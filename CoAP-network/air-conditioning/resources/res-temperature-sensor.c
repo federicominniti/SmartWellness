@@ -6,6 +6,7 @@
 #include <math.h>
 #include "contiki.h"
 #include "coap-engine.h"
+#include "random.h"
 #include "dev/leds.h"
 #include "sys/node-id.h"
 
@@ -31,16 +32,17 @@ EVENT_RESOURCE(res_temperature_sensor,
 static int temperature = 18;
 //static char sensorType[20] = "tempSensor";
 
-static bool simulate_temperature_values () {
-	bool updated = false;
-	int old_temp = temperature;
+int random_in_range(int a, int b) {
+    int v = random_rand() % (b-a);
+    return v + a;
+}
 
-    srand(time(NULL));
+static void simulate_temperature_values () {
     int variation = 0;
 
 	if(ac_on) {
 	    if (temperature < ac_temperature) {
-	        variation = rand() % 3;
+	        variation = random_rand() % 3;
 	        if (variation != 1) {
 	            variation = 0;
 	        } else
@@ -50,7 +52,7 @@ static bool simulate_temperature_values () {
 	        variation = 0;
 	    } else {
 	        //33% of chance that the temperature will go down of 1C
-	        variation = rand() % 3;
+	        variation = random_rand() % 3;
 	        if (variation != 1)
 	            variation = 0;
 
@@ -60,25 +62,19 @@ static bool simulate_temperature_values () {
 
 	} else {
 	    //3% of chance that the temperature will go up of 1C
-        variation = rand() % 3;
+        variation = random_rand() % 3;
         if (variation != 1)
             variation = 0;
 
         temperature = temperature + variation;
     }
 
-	if(old_temp != temperature)
-		updated = true;
-
-	return updated;
 }
 
 static void temperature_event_handler(void) {
-	if (simulate_temperature_values()) { // if the value is changed
-		LOG_INFO("temperature : %d \n", temperature);
-		// Notify all the observers
-    	coap_notify_observers(&res_temperature_sensor);
-	}
+	simulate_temperature_values();
+	LOG_INFO("temperature : %d \n", temperature);
+    coap_notify_observers(&res_temperature_sensor);
 }
 
 static void temperature_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
