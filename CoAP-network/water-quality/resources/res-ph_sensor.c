@@ -8,6 +8,7 @@
 #include "coap-engine.h"
 #include "dev/leds.h"
 #include "sys/node-id.h"
+#include "random.h"
  
 #include "global_variables.h"
  
@@ -31,13 +32,9 @@ EVENT_RESOURCE(res_ph_sensor,
 static float ph_level = 7.0;
 static char sensorType[20] = "phSensor";
  
-float random_float(float a, float b) {
-    float random = ((float) rand()) / (float) RAND_MAX;
-    float diff = b - a;
-    float r = random * diff;
- 
-    float res = a + r;
-    return res;
+int random_in_range(int a, int b) {
+    int v = random_rand() % (b-a);
+    return v + a;
 }
 
 //CONTIKI DOES NOT SUPPORT THE FLOAT FORMAT
@@ -51,41 +48,29 @@ unsigned short digitsAfter(float f){
     return(10*(f-digitsBefore(f)));
 }
  
-static bool simulate_ph_values () { 
-	bool updated = false;
-	float old_ph = ph_level;
- 
-    srand(time(NULL));
+static void simulate_ph_values () {
     float value = 0;
- 
+
 	if(buffer_release) {
         // if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
         // the pH remains in the right range
-        if (old_ph >= 7.2 && old_ph <= 7.8) {
-            ph_level = random_float(7.2, 7.8);
+        if (ph_level >= 7.4 && ph_level <= 7.9) {
+	   ph_level = 7.0 + (float)random_in_range(4, 8) / 10.0;
         } else {
-            value = random_float(0.1, 0.5);
-            ph_level = old_ph + value;
+            ph_level = ph_level + random_in_range(1,3) / 10.0;
         }
- 
+
 	} else {
-        value = random_float(0.1, 0.5);
-        ph_level = old_ph - value;
-        LOG_INFO("value: %u.%u\n", digitsBefore(value), digitsAfter(value));
+        value = random_in_range(1,2) / 10.0;
+        ph_level = ph_level - value;
     }
- 
-	if(old_ph != ph_level)
-		updated = true;
- 
-	return updated;
 }
- 
+
 static void ph_event_handler(void) {
-	if (simulate_ph_values()) { // if the value is changed
-		LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
-		// Notify all the observers
-    	coap_notify_observers(&res_ph_sensor);
-	}
+	simulate_ph_values()
+	LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
+	// Notify all the observers
+    coap_notify_observers(&res_ph_sensor);
 }
  
  
