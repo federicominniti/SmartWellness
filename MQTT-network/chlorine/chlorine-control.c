@@ -33,7 +33,7 @@ static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 // Default config values
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
-#define PUBLISH_INTERVAL	        (5 * CLOCK_SECOND)
+#define PUBLISH_INTERVAL	        (10 * CLOCK_SECOND)
 
 // We assume that the broker does not require authentication
 
@@ -117,7 +117,7 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
 		}
 		else if(strcmp((const char*) chunk, "OFF") == 0) {
 			increase_chlorine = false;
-            LOG_INFO("Chlorine regulator switched ON\n");
+            LOG_INFO("Chlorine regulator switched OFF\n");
 		}
 	}
 	else {
@@ -190,16 +190,19 @@ static void simulate_chlorine_level(){
 	if(increase_chlorine) {
 		// if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
 		// the pH remains in the right range
-		if (old_chlorine >= 1.0 && old_chlorine <= 3.0) {
-			chlorine_level = (float)random_in_range(1, 3);
+		if (old_chlorine >= 2.5 && old_chlorine <= 3.0) {
+			chlorine_level = (float)random_in_range(25, 30) * 0.1;
 		} else {
-			variation = (float)random_in_range(2, 8) * 0.1;
+			variation = (float)random_in_range(2, 5) * 0.1;
 			chlorine_level = old_chlorine + variation;
 		}
 			
 	} else {
-		variation = (float)random_in_range(2, 8) * 0.1;
-		chlorine_level = old_chlorine - variation;
+		if(chlorine_level != 0){
+			variation = (float)random_in_range(2, 5) * 0.1;
+			chlorine_level = old_chlorine - variation;
+		}
+		//with the manual mode activated the chlorine level could arrive to 0
 	}
 
 	LOG_INFO("New chlorine value: %u.%u\n", digitsBefore(chlorine_level), digitsAfter(chlorine_level));				
@@ -259,16 +262,16 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 
 				simulate_chlorine_level();
 
+				if(ev == button_hal_press_event){
+					manual_handler();
+				}
+
                 snprintf(app_buffer, APP_BUFFER_SIZE, 
                             "{\"node\": %d, \"value\": %u.%u, \"manual\": %d, \"sensorType\": \"%s\"}", 
                             (unsigned int) node_id, digitsBefore(chlorine_level), digitsAfter(chlorine_level), 
                             (int)manual, sensorType);
 
-				LOG_INFO("message: %s" app_buffer)
-
-				if(ev == button_hal_press_event){
-					manual_handler();
-				}
+				LOG_INFO("message: %s\n", app_buffer);
 
 				mqtt_publish(&conn, NULL, pub_topic, (uint8_t *)app_buffer, strlen(app_buffer), 
                                 MQTT_QOS_LEVEL_0, MQTT_RETAIN_OFF);

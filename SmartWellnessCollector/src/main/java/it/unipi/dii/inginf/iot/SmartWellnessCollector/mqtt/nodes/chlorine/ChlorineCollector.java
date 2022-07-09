@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 
 public class ChlorineCollector extends MqttNode<Float, Boolean>{
     private static float MIN_PPM = 1;
+    private static float MAX_PPM = (float)2.5;
     
     public ChlorineCollector() {
         super(new Boolean(false),
@@ -38,7 +39,7 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
             actuatorOn = true;
             update = true;
         }
-        else if(chlorineSample.getManual() == 0 && actualValue > MIN_PPM && actuatorOn) {
+        else if(chlorineSample.getManual() == 0 && actualValue >= MAX_PPM && actuatorOn) {
             actuatorOn = false;
             update = true;
         }
@@ -52,6 +53,14 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
 
     public void setMinPPM(float minPPM) {
         MIN_PPM = minPPM;
+    }
+
+    public float getMaxPPM() {
+        return MAX_PPM;
+    }
+
+    public void setMaxPPM(float maxPPM) {
+        MAX_PPM = maxPPM;
     }
 
     public boolean getChlorineRegulator() {
