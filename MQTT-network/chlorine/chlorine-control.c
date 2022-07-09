@@ -48,7 +48,8 @@ static uint8_t state;
 #define STATE_DISCONNECTED    	5	// Disconnected from MQTT broker
 
 PROCESS_NAME(chlorine_control_process);
-AUTOSTART_PROCESSES(&chlorine_control_process);
+PROCESS_NAME(blinking_led);
+AUTOSTART_PROCESSES(&chlorine_control_process, &blinking_led);
 
 /* Maximum TCP segment size for outgoing segments of our socket */
 #define MAX_TCP_SEGMENT_SIZE    32
@@ -89,9 +90,6 @@ static bool manual = false;
 
 static mqtt_status_t status;
 static char broker_address[CONFIG_IP_ADDR_STR_LEN];
-
-//TODO GESTIONE PRESSIONE BOTTONE
-//TODO GESTIONE LED
 
 static float random_float(float a, float b) {
     float random = ((float) rand()) / (float) RAND_MAX;
@@ -287,6 +285,53 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 			}
 
 			etimer_set(&periodic_timer, PUBLISH_INTERVAL);
+		}
+	}
+	PROCESS_END();
+}
+
+PROCESS(blinking_led, "Led blinking process");
+
+static struct etimer registration_led_timer;
+static struct etimer buffer_led_timer;
+static struct etimer led_on_timer;
+
+PROCESS_THREAD(blinking_led, ev, data)
+{
+	PROCESS_BEGIN();
+
+	etimer_set(&registration_led_timer, 1*CLOCK_SECOND);
+
+	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+
+	while(state != STATE_SUBSCRIBED){
+		PROCESS_YIELD();
+		if (ev == PROCESS_EVENT_TIMER){
+			if(etimer_expired(&registration_led_timer)){
+				leds_toggle(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				etimer_restart(&registration_led_timer);
+			}
+		}
+	}
+
+	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
+	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
+
+	while(1){
+		PROCESS_YIELD();
+		if (ev == PROCESS_EVENT_TIMER){
+			if(etimer_expired(&buffer_led_timer)){
+				if(increase_chlorine){
+					leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				}
+				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
+				etimer_restart(&buffer_led_timer);
+				etimer_restart(&led_on_timer);
+			}
+			if(etimer_expired(&led_on_timer)){
+				leds_off(LEDS_NUM_TO_MASK(LEDS_YELLOW));
+				leds_off(LEDS_NUM_TO_MASK(LEDS_GREEN));
+			}
 		}
 	}
 	PROCESS_END();
