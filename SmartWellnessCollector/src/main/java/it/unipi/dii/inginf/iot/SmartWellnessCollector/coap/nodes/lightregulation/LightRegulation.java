@@ -64,10 +64,10 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
                 DataSample lightRegulationSample = parser.fromJson(responseString, DataSample.class);
                 //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
                 lightRegulationSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                if(lightRegulationSample.getManual() == 1 && manual.get() == false){
+                if(lightRegulationSample.getManual() == 1 && !manual.get()){
                     manual.set(true);
                     actuatorStatus.set(manualSwitchSystem());
-                } else if(lightRegulationSample.getManual() == 0 && manual.get() == true){
+                } else if(lightRegulationSample.getManual() == 0 && manual.get()){
                     manual.set(false);
                     actuatorStatus.set(manualSwitchSystem());
                 }

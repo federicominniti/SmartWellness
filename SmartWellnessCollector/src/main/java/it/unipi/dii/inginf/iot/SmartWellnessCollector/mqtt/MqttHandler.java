@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.chlorine.ChlorineCollector;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.humidity.HumidityCollector;
 import org.eclipse.paho.client.mqttv3.*;
+
+import java.util.HashMap;
 
 public class MqttHandler implements MqttCallback {
 
@@ -15,7 +18,8 @@ public class MqttHandler implements MqttCallback {
 
     private MqttClient mqttClient = null;
     private Gson parser;
-    private ChlorineCollector chlorineCollector;
+    private final ChlorineCollector chlorineCollector;
+    private final HumidityCollector humidityCollector;
 
     private Logger logger;
 
@@ -23,6 +27,7 @@ public class MqttHandler implements MqttCallback {
         parser = new Gson();
         logger = Logger.getInstance();
         chlorineCollector = new ChlorineCollector();
+        humidityCollector = new HumidityCollector();
         do {
             try {
                 mqttClient = new MqttClient(BROKER, CLIENT_ID);
@@ -42,6 +47,7 @@ public class MqttHandler implements MqttCallback {
     private void connectToBroker () throws MqttException {
         mqttClient.connect();
         mqttClient.subscribe(chlorineCollector.getSENSOR_TOPIC());
+        mqttClient.subscribe(humidityCollector.getSENSOR_TOPIC());
         System.out.println("Subscribed to topic: " + chlorineCollector.getSENSOR_TOPIC());
     }
 
@@ -95,14 +101,18 @@ public class MqttHandler implements MqttCallback {
             }
             //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
+
+        if (topic.equals(humidityCollector.getSENSOR_TOPIC())) {
+            boolean updated = humidityCollector.processMessage(payload);
+            if (updated) {
+                publishMessage(humidityCollector.getACTUATOR_TOPIC(), (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
+                System.out.println("Humidifier: " + (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
+            }
+        }
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
         logger.logInfo("Message correctly delivered");
-    }
-
-    public ChlorineCollector getHumidityCollector() {
-        return chlorineCollector;
     }
 }
