@@ -3,6 +3,7 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt;
 import com.google.gson.Gson;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.access.AccessCollector;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.chlorine.ChlorineCollector;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.humidity.HumidityCollector;
 import org.eclipse.paho.client.mqttv3.*;
@@ -20,6 +21,7 @@ public class MqttHandler implements MqttCallback {
     private Gson parser;
     private final ChlorineCollector chlorineCollector;
     private final HumidityCollector humidityCollector;
+    private final AccessCollector accessCollector;
 
     private Logger logger;
 
@@ -28,6 +30,7 @@ public class MqttHandler implements MqttCallback {
         logger = Logger.getInstance();
         chlorineCollector = new ChlorineCollector();
         humidityCollector = new HumidityCollector();
+        accessCollector = new AccessCollector();
         do {
             try {
                 mqttClient = new MqttClient(BROKER, CLIENT_ID);
@@ -49,6 +52,8 @@ public class MqttHandler implements MqttCallback {
         mqttClient.subscribe(chlorineCollector.getSENSOR_TOPIC());
         mqttClient.subscribe(humidityCollector.getSENSOR_TOPIC());
         System.out.println("Subscribed to topic: " + chlorineCollector.getSENSOR_TOPIC());
+        mqttClient.subscribe(accessCollector.getSENSOR_TOPIC());
+        System.out.println("Subscribed to topic: " + accessCollector.getSENSOR_TOPIC());
     }
 
     /**
@@ -108,6 +113,16 @@ public class MqttHandler implements MqttCallback {
                 publishMessage(humidityCollector.getACTUATOR_TOPIC(), (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
                 System.out.println("Humidifier: " + (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
             }
+        }
+
+        if (topic.equals(accessCollector.getSENSOR_TOPIC())) {
+            boolean updated = accessCollector.processMessage(payload);
+            if(updated){
+                publishMessage(accessCollector.getACTUATOR_TOPIC(), accessCollector.getActuatorOn().toString());
+                System.out.println("Light colour: " + accessCollector.getLightColour());
+                System.out.println("Entrance door: " + accessCollector.getEntranceLock());  
+            }
+            //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
     }
 
