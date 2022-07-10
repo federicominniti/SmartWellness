@@ -198,9 +198,11 @@ static void simulate_chlorine_level(){
 		}
 			
 	} else {
-		if(chlorine_level != 0){
+		if(chlorine_level >= 0){
 			variation = (float)random_in_range(2, 5) * 0.1;
 			chlorine_level = old_chlorine - variation;
+			if (chlorine_level < 0)
+			    chlorine_level = 0;
 		}
 		//with the manual mode activated the chlorine level could arrive to 0
 	}
