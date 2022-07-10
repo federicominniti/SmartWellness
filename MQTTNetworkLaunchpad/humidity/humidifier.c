@@ -282,7 +282,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	leds_on(LEDS_RED);
 
-	while(!is_connected() || !registered){
+	while(state != STATE_SUBSCRIBED){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&registration_led_timer)){
@@ -301,7 +301,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&humidifier_led_timer)){
-				if(ac_on){
+				if(humidifier_on){
 					leds_on(LEDS_RED);
 				}
 				leds_on(LEDS_GREEN);
