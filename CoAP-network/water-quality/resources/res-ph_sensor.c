@@ -67,7 +67,7 @@ static void simulate_ph_values () {
 }
 
 static void ph_event_handler(void) {
-	simulate_ph_values()
+	simulate_ph_values();
 	LOG_INFO("pH level: %u.%u \n", digitsBefore(ph_level), digitsAfter(ph_level));
 	// Notify all the observers
     coap_notify_observers(&res_ph_sensor);
