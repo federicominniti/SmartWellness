@@ -82,7 +82,6 @@ static struct mqtt_connection conn;
 PROCESS(humidity_control_process, "Humidity control process");
 
 static bool humidifier_on = false;
-static int required_humidity = 90;
 
 static int humidity_level = 80;
 static int variation = 0;
