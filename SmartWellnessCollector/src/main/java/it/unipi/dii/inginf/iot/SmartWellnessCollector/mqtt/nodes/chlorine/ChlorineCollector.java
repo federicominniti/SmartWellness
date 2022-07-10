@@ -29,10 +29,13 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
         if(chlorineSample.getManual() == 1 && !manual) {
             manual = true;
             actuatorOn = !actuatorOn;
+            System.out.println("MANUAL chlorine regulator");
 
         } else if (chlorineSample.getManual() == 0 && manual) {
             manual = false;
             actuatorOn = !actuatorOn;
+            update = true;
+            System.out.println("END MANUAL chlorine regulator");
         }
 
         if(!manual && actualValue < MIN_PPM && !actuatorOn) {
