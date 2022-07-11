@@ -1,6 +1,8 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.waterquality;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
+
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
@@ -63,7 +65,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
             logger.logInfo(responseString);
             try {
                 DataSample waterQualitySample = parser.fromJson(responseString, DataSample.class);
-                //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
+                MySQLDriver.getInstance().insertDataSample(waterQualitySample);
                 waterQualitySample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 sensedData.set(waterQualitySample.getValue());
                 boolean waterQualitySampleManual = (waterQualitySample.getManual() == 1 ? true:false);
