@@ -3,6 +3,8 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.access;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 //import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.MqttNode;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
+
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +43,7 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
 
     public boolean processMessage(String payload){
         DataSample accessSample = parser.fromJson(payload, DataSample.class);
+        MySQLDriver.getInstance().insertDataSample(accessSample);
         actualValue = (int)accessSample.getValue();
 
         boolean update = false;
