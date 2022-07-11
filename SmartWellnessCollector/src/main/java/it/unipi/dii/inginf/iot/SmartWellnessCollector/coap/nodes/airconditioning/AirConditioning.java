@@ -3,6 +3,8 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.airconditionin
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
+
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
@@ -86,7 +88,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
             logger.logInfo(responseString);
             try {
                 DataSample temperatureSample = parser.fromJson(responseString, DataSample.class);
-                //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
+                MySQLDriver.getInstance().insertDataSample(temperatureSample);
                 temperatureSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 sensedData.set((int)temperatureSample.getValue());
 
