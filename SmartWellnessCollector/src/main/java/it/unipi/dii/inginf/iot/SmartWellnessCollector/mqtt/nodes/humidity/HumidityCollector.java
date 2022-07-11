@@ -16,7 +16,6 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         DataSample humiditySample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(humiditySample);
         actualValue = (int)humiditySample.getValue();
-        logger.logInfo(payload);
         boolean update = false;
 
         if(humiditySample.getManual() == 1 && !manual) {

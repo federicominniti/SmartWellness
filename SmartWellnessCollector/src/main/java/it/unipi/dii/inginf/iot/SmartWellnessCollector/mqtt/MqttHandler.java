@@ -98,7 +98,7 @@ public class MqttHandler implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         String payload = new String(mqttMessage.getPayload());
-        System.out.println("received " + payload);
+        logger.logInfo(payload);
         if (topic.equals(chlorineCollector.getSENSOR_TOPIC())) {
             boolean updated = chlorineCollector.processMessage(payload);
             if(updated){

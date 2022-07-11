@@ -43,8 +43,6 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
         DataSample accessSample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(accessSample);
         actualValue = (int)accessSample.getValue();
-
-        logger.logInfo(payload);
         boolean update = false;
         int previousLightValue = -1;
 

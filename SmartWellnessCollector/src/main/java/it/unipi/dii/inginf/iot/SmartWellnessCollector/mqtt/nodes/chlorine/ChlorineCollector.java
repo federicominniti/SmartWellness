@@ -23,7 +23,6 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
         DataSample chlorineSample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(chlorineSample);
         actualValue = chlorineSample.getValue();
-        logger.logInfo(payload);
 
         boolean update = false;
 
