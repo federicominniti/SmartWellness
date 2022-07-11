@@ -28,7 +28,7 @@ public class MySQLDriver {
         databasePort = 3306;
         databaseUsername = "root";
         databasePassword = "PASSWORD";
-        databaseName = "SmartWellnessDB";
+        databaseName = "smartwellness";
     }
 
     /**

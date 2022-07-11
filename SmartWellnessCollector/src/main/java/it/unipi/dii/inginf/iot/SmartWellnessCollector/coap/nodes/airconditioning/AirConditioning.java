@@ -92,7 +92,7 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 temperatureSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 sensedData.set((int)temperatureSample.getValue());
 
-                boolean temperatureSampleManual = (temperatureSample.getManual() == 1 ? true:false);
+                boolean temperatureSampleManual = (temperatureSample.getManual() == 1);
                 if(temperatureSampleManual != manual.get()){
                     manual.set(temperatureSampleManual);
                     actuatorStatus.set(!actuatorStatus.get());

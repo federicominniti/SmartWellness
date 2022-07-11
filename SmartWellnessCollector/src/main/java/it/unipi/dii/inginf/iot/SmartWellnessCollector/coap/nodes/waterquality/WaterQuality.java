@@ -68,9 +68,9 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 MySQLDriver.getInstance().insertDataSample(waterQualitySample);
                 waterQualitySample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 sensedData.set(waterQualitySample.getValue());
-                boolean waterQualitySampleManual = (waterQualitySample.getManual() == 1 ? true:false);
+                boolean waterQualitySampleManual = (waterQualitySample.getManual() == 1);
                 if(waterQualitySampleManual != manual.get()){
-                    manual.set((waterQualitySample.getManual() == 1 ? true:false));
+                    manual.set((waterQualitySample.getManual() == 1));
                     actuatorStatus.set(!actuatorStatus.get());
                     if (actuatorStatus.get())
                         logger.logStatus("MANUAL: buffer regulator ON");
@@ -83,7 +83,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
                 //computeAverage();
             } catch (Exception e) {
-                logger.logError("[ERROR] The PH sensor gave non-significant data");
+                logger.logError("The PH sensor gave non-significant data");
                 e.printStackTrace();
             }
 

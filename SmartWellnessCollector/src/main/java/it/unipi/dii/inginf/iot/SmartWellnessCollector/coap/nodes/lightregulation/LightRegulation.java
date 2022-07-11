@@ -83,7 +83,7 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
                 e.printStackTrace();
             }
 
-            if(manual.get() == false){
+            if(!manual.get()){
                 if(sensedData.get() > LOWER_BOUND_MAX_LUX.get()){
                     actuatorStatus.set(0);
                     lightSystemSwitch(actuatorStatus.get());

@@ -51,9 +51,10 @@ public class MqttHandler implements MqttCallback {
         mqttClient.connect();
         mqttClient.subscribe(chlorineCollector.getSENSOR_TOPIC());
         mqttClient.subscribe(humidityCollector.getSENSOR_TOPIC());
-        System.out.println("Subscribed to topic: " + chlorineCollector.getSENSOR_TOPIC());
         mqttClient.subscribe(accessCollector.getSENSOR_TOPIC());
+        System.out.println("Subscribed to topic: " + chlorineCollector.getSENSOR_TOPIC());
         System.out.println("Subscribed to topic: " + accessCollector.getSENSOR_TOPIC());
+        System.out.println("Subscribed to topic: " + humidityCollector.getSENSOR_TOPIC());
     }
 
     /**
@@ -72,26 +73,26 @@ public class MqttHandler implements MqttCallback {
 
     @Override
     public void connectionLost(Throwable throwable) {
-        System.out.println("Connection lost with the Broker");
+        System.out.println("WARNING: connection lost with the broker");
         // We have lost the connection, we have to try to reconnect after waiting some time
         // At each iteration we increase the time waited
         int times = 0;
         do {
             times++;
             if (times > MAX_NUMBER_OF_RECONNECTION_TIMES) {
-                System.err.println("Error cannot riconnect with the brocker!");
+                System.err.println("ERROR: cannot reconnect with the broker");
                 System.exit(-1);
             }
             try {
                 Thread.sleep(RECONNECTION_INTERVAL * 1000);
-                System.out.println("Reconnecting to the broker..");
+                System.out.println("WARNING: reconnecting to the broker..");
                 connectToBroker();
             }
             catch (MqttException | InterruptedException e) {
                 e.printStackTrace();
             }
         } while (!this.mqttClient.isConnected());
-        System.out.println("Connection with the Broker restored!");
+        System.out.println("INFO: connection with the broker restored");
     }
 
     @Override
@@ -102,7 +103,7 @@ public class MqttHandler implements MqttCallback {
             boolean updated = chlorineCollector.processMessage(payload);
             if(updated){
                 publishMessage(chlorineCollector.getACTUATOR_TOPIC(), (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
-                System.out.println("Chlorine regulator: " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
+                logger.logStatus("Chlorine regulator: " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
             }
             //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
@@ -111,7 +112,7 @@ public class MqttHandler implements MqttCallback {
             boolean updated = humidityCollector.processMessage(payload);
             if (updated) {
                 publishMessage(humidityCollector.getACTUATOR_TOPIC(), (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
-                System.out.println("Humidifier: " + (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
+                logger.logStatus("Humidifier: " + (humidityCollector.getHumidifierStatus() ? "ON":"OFF"));
             }
         }
 
@@ -119,17 +120,15 @@ public class MqttHandler implements MqttCallback {
             boolean updated = accessCollector.processMessage(payload);
             if(updated){
                 publishMessage(accessCollector.getACTUATOR_TOPIC(), accessCollector.getActuatorOn().toString());
-                System.out.println("Light colour: " + accessCollector.getLightColour());
-                System.out.println("Entrance door: " + accessCollector.getEntranceLock());  
+                logger.logStatus("Light color: " + accessCollector.getLightColour());
+                logger.logStatus("Entrance door: " + accessCollector.getEntranceLock());
             }
             //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
     }
 
     @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-        logger.logInfo("Message correctly delivered");
-    }
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
 
     /*--------------------POOL CHLORINE-------------------*/
     public float getPoolChlorineLevel() {

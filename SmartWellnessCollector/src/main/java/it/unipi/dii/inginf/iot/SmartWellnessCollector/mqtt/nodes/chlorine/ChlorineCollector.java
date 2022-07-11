@@ -16,28 +16,27 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
     private static float MAX_PPM = (float)2.5;
     
     public ChlorineCollector() {
-        super(new Boolean(false),
-                new Float(1.5),
-                "ppm", "chlorine_regulator");
+        super(Boolean.FALSE, 1.5F, "ppm", "chlorine_regulator");
     }
 
     public boolean processMessage(String payload){
         DataSample chlorineSample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(chlorineSample);
         actualValue = chlorineSample.getValue();
+        logger.logInfo(payload);
 
         boolean update = false;
 
         if(chlorineSample.getManual() == 1 && !manual) {
             manual = true;
             actuatorOn = !actuatorOn;
-            System.out.println("MANUAL chlorine regulator");
+            logger.logStatus("MANUAL chlorine regulator");
 
         } else if (chlorineSample.getManual() == 0 && manual) {
             manual = false;
             actuatorOn = !actuatorOn;
             update = true;
-            System.out.println("END MANUAL chlorine regulator");
+            logger.logStatus("END MANUAL chlorine regulator");
         }
 
         if(!manual && actualValue < MIN_PPM && !actuatorOn) {

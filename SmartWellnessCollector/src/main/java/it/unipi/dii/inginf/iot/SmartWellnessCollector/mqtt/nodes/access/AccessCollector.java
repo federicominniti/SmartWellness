@@ -17,9 +17,7 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
     private static boolean entranceDoorLocked;
     
     public AccessCollector() {
-        super(new Integer(0),
-                new Integer(0),
-                "number_of_people", "access_regulator");
+        super(0, 0, "number_of_people", "access_regulator");
 
         entranceDoorLocked = false;
     }
@@ -30,11 +28,11 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
             light_colour = 0;
             entranceDoorLocked = false;
         } 
-        else if(actualValue >= INTERMEDIATE_NUMBER && actualValue < MAX_NUMBER){
+        else if(actualValue < MAX_NUMBER){
             light_colour = 1;
             entranceDoorLocked = false;
         } 
-        else if(actualValue >= MAX_NUMBER){
+        else {
             light_colour = 2;
             entranceDoorLocked = true;
         }
@@ -46,26 +44,18 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
         MySQLDriver.getInstance().insertDataSample(accessSample);
         actualValue = (int)accessSample.getValue();
 
+        logger.logInfo(payload);
         boolean update = false;
         int previousLightValue = -1;
 
         if((accessSample.getManual() == 1 && !manual) || (accessSample.getManual() == 0 && manual)) {
             actuatorOn = calculateActuatorValue();
 
-            /*entranceDoorLocked = !entranceDoorLocked;
-            previousLightValue = actuatorOn;
-            if(actuatorOn == 2){
-                actuatorOn = 0;
-            }
-            else if(actuatorOn == 0) {
-                actuatorOn = 2;
-            }*/
             if(accessSample.getManual() == 0 && manual){
-                //update = (previousLightValue != actuatorOn);
                 update = true;
-                System.out.println("Manual off");
-            }
-            else System.out.println("Manual on");
+                logger.logStatus("END MANUAL SB Access");
+            } else
+                logger.logStatus("MANUAL SB Access");
             manual = !manual;
         }
         else if(accessSample.getManual() == 0) {

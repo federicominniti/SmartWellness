@@ -237,14 +237,14 @@ PROCESS_THREAD(humidity_control_process, ev, data) {
 			if(state == STATE_SUBSCRIBED) {
 				sprintf(pub_topic, "%s", "humidity");
 
-				simulate_humidity_level();
-
 				if(ev == button_hal_press_event){
 					button_hal_button_t* btn = (button_hal_button_t*)data;
                     if (btn->unique_id == BOARD_BUTTON_HAL_INDEX_KEY_LEFT) {
                     	manual_handler();
                     }
 				}
+
+				simulate_humidity_level();
 
                 snprintf(app_buffer, APP_BUFFER_SIZE, 
                             "{\"node\": %d, \"value\": %d, \"manual\": %d, \"sensorType\": \"%s\"}",

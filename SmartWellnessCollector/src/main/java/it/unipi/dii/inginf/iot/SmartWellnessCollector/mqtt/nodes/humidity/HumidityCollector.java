@@ -16,19 +16,19 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         DataSample humiditySample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(humiditySample);
         actualValue = (int)humiditySample.getValue();
-
+        logger.logInfo(payload);
         boolean update = false;
 
         if(humiditySample.getManual() == 1 && !manual) {
             manual = true;
             actuatorOn = !actuatorOn;
-            System.out.println("MANUAL humidifier");
+            logger.logStatus("MANUAL humidifier");
 
         } else if (humiditySample.getManual() == 0 && manual) {
             manual = false;
             actuatorOn = !actuatorOn;
             update = true;
-            System.out.println("END MANUAL humidifier");
+            logger.logStatus("END MANUAL humidifier");
         }
 
         if(!manual && actualValue < MIN_HUMIDITY && !actuatorOn) {
