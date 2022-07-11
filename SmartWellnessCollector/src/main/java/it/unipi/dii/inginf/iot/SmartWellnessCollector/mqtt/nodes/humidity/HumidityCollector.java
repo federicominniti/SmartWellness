@@ -2,6 +2,7 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.humidity;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.MqttNode;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
 
 public class HumidityCollector extends MqttNode<Integer, Boolean> {
     private static int MIN_HUMIDITY = 88;
@@ -13,6 +14,7 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
 
     public boolean processMessage(String payload){
         DataSample humiditySample = parser.fromJson(payload, DataSample.class);
+        MySQLDriver.getInstance().insertDataSample(humiditySample);
         actualValue = (int)humiditySample.getValue();
 
         boolean update = false;
