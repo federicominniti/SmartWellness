@@ -3,6 +3,7 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.chlorine;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 //import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.MqttNode;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
 
     public boolean processMessage(String payload){
         DataSample chlorineSample = parser.fromJson(payload, DataSample.class);
+        MySQLDriver.getInstance().insertDataSample(chlorineSample);
         actualValue = chlorineSample.getValue();
 
         boolean update = false;
