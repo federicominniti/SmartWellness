@@ -50,7 +50,7 @@ public class MySQLDriver {
         try (
                 Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO DataSaples (node, value, manual, sensorType, timestamp) VALUES (?, ?, ?, ?, ?)")
+                    "INSERT INTO DataSamples (node, value, manual, sensorType, timestamp) VALUES (?, ?, ?, ?, ?)")
         )
         {
             statement.setInt(1, dataSample.getNode());
