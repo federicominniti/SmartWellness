@@ -28,51 +28,51 @@ public class CoapNodesServer extends CoapServer {
     /*      REGISTER AND UNREGISTER DEVICES     */
 
     /*      GET MEASURES FROM SENSORS     */
-    public float getPHLevel() {
-        return waterQuality.getSensedData().get();
-    }
 
-    public void setBufferRegulator(boolean on) {
-        waterQuality.bufferRegulatorSwitch(on);
-    }
 
-    public boolean getBufferRegulatorStatus() {
-        return waterQuality.getActuatorStatus().get();
-    }
+    
 
-    public void setBufferRegulatorStatus(boolean on) {
-        waterQuality.bufferRegulatorSwitch(on);
-    }
-
-    /*      REGISTER AND UNREGISTER DEVICES     */
-
-    /*      GET MEASURES FROM SENSORS     */
+    /*--------------------GYM TEMPERATURE-------------------*/
     public int getGymTemperature() {
         return airConditioning.getSensedData().get();
     }
 
     public void setGymACTemperature(int temp) {
-        airConditioning.setNORMAL_LEVEL(temp);
+        airConditioning.setACTemperature(temp);
     }
 
     public int getGymACTemperature() {
         return airConditioning.getNORMAL_LEVEL();
     }
 
-    public void setGymMaxTemperature(int temp) {
-        airConditioning.setACTemperature(temp);
+    public void setGymACUpperBound(int temp) {
+        airConditioning.setUPPER_BOUND(temp);
     }
 
-    public int getLuxValue() {
+    /*--------------------GYM LIGHT-------------------*/
+    public int getGymLuxValue() {
         return lightRegulation.getSensedData().get();
     }
 
-    public void setGymLowerBoundMaxLux(int maxLux) {
-        lightRegulation.setLowerBoundMaxLux(maxLux);
+    public void setGymCrepuscularMaxLevel(int maxLux) {
+        lightRegulation.setLuxMaxLevel(maxLux);
     }
 
-    public void setGymLowerBoundIntermediateLux(int intermediateLux) {
-        lightRegulation.setLowerBoundIntermediateLux(intermediateLux);
+    public void setGymCrepuscularIntermediateLevel(int intermediateLux) {
+        lightRegulation.setLuxIntermediateLevel(intermediateLux);
+    }
+
+    /*--------------------POOL PH-------------------*/
+    public float getPoolPHLevel() {
+        return waterQuality.getSensedData().get();
+    }
+
+    public void setPoolPHLowerBound(float ph){
+        waterQuality.setPHLowerBound(ph);
+    }
+
+    public void setPoolPHNormalLevel(float ph){
+        waterQuality.setPHNormalLevel(ph);
     }
 
     class CoapRegistrationResource extends CoapResource {

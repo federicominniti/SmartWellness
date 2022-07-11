@@ -130,4 +130,45 @@ public class MqttHandler implements MqttCallback {
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
         logger.logInfo("Message correctly delivered");
     }
+
+    /*--------------------POOL CHLORINE-------------------*/
+    public float getPoolChlorineLevel() {
+        return chlorineCollector.getSensedData();
+    }
+
+    public void setPoolMinPPM(float minPPM){
+        chlorineCollector.setMinPPM(minPPM);
+    }
+
+    public void setPoolMaxPPM(float maxPPM){
+        chlorineCollector.setMaxPPM(maxPPM);
+    }
+
+    /*----------------STEAM BATH TEMPERATURE---------------*/
+    public int getSteamBathNumberOfPeople() {
+        return accessCollector.getSensedData();
+    }
+
+    public void setSteamBathIntermediateNumber(int intermediateNumber){
+        accessCollector.setIntermediateNumber(intermediateNumber);
+    }
+
+    public void setSteamBathMaxNumber(int maxNumber){
+        accessCollector.setMaxNumber(maxNumber);
+    }
+
+    /*-----------------STEAM BATH HUMIDITY----------------*/
+    public int getSteamBathHumidityLevel() {
+        return humidityCollector.getSensedData();
+    }
+
+    public void setSteamBathMinHumidity(int minHumidity){
+        humidityCollector.setMinHumidity(minHumidity);
+    }
+
+    public void setSteamBathMaxHumidity(int maxHumidity){
+        humidityCollector.setMaxHumidity(maxHumidity);
+    }
+
+
 }

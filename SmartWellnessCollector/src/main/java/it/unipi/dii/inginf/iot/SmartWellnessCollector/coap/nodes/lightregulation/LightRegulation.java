@@ -105,19 +105,19 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
         }
     }
 
-    public int getLowerBoundMaxLux() {
+    public int getLuxMaxLevel() {
         return LOWER_BOUND_MAX_LUX.get();
     }
 
-    public void setLowerBoundMaxLux(int lowerBoundMaxLux) {
+    public void setLuxMaxLevel(int lowerBoundMaxLux) {
         LOWER_BOUND_MAX_LUX.set(lowerBoundMaxLux);
     }
 
-    public int getLowerBoundIntermediateLux() {
+    public int getLuxIntermediateLevel() {
         return LOWER_BOUND_INTERMEDIATE_LUX.get();
     }
 
-    public void setLowerBoundIntermediateLux(int lowerBoundIntermediateLux) {
+    public void setLuxIntermediateLevel(int lowerBoundIntermediateLux) {
         LOWER_BOUND_INTERMEDIATE_LUX.set(lowerBoundIntermediateLux);
     }
 

@@ -25,6 +25,10 @@ public abstract class MqttNode<SensedDataType, ActuatorStatusType> {
         parser = new Gson();
     }
 
+    public SensedDataType getSensedData() {
+        return actualValue;
+    }
+
     public ActuatorStatusType getActuatorStatus() {
         return actuatorOn;
     }

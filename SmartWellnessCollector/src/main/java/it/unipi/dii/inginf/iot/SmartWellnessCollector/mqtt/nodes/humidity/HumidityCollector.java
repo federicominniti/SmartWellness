@@ -43,7 +43,7 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         return update;
     }
 
-    public float getMinHumidity() {
+    public int getMinHumidity() {
         return MIN_HUMIDITY;
     }
 
@@ -51,7 +51,7 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         MIN_HUMIDITY = min;
     }
 
-    public float getMaxHumidity() {
+    public int getMaxHumidity() {
         return MAX_HUMIDITY;
     }
 

@@ -121,4 +121,12 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
             logger.logError("Water Quality " + sensor.getURI());
         }
     }
+
+    public void setPHLowerBound(float lowerBound) {
+        LOWER_BOUND.set(lowerBound);
+    }
+
+    public void setPHNormalLevel(float normalLevel) {
+        NORMAL_LEVEL.set(normalLevel);
+    }
 }
