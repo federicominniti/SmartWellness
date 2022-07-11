@@ -120,10 +120,10 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
 			}
 
 			//Handling of collector chashes
-			if(number_of_people > 15){
+			/*if(number_of_people > 15){
 				LOG_INFO("%d people exited for security reason\n", (number_of_people-15));
 				number_of_people = 15;
-			}
+			}*/
 		}
 	}
 	else {
@@ -214,18 +214,15 @@ static void simulate_of_entrance(){
 	if(!entrance_door_locked && number_of_people == 0 && factor == -1){
 		factor = 1;
 	}
-	else if(entrance_door_locked || number_of_people >= 30){
+	else if(entrance_door_locked){
 		//entrance door closed or number of people greater than 30
 		factor = -1;
 	}
 
-	number_of_people = number_of_people + random_in_range(1, 3) * factor;
+	number_of_people = number_of_people + factor;
 
 	if(number_of_people < 0) {
 		number_of_people = 0;
-	}
-	else if(number_of_people > 30) {
-		number_of_people = 30;
 	}
 
 	LOG_INFO("New number of people: %d\n", number_of_people);				
@@ -283,11 +280,11 @@ PROCESS_THREAD(access_control_process, ev, data) {
 			if(state == STATE_SUBSCRIBED) {
 				sprintf(pub_topic, "%s", "number_of_people");
 
-				simulate_of_entrance();
-
 				if(ev == button_hal_press_event){
 					manual_handler();
 				}
+
+				simulate_of_entrance();
 
                 snprintf(app_buffer, APP_BUFFER_SIZE, 
                             "{\"node\": %d, \"value\": %d, \"manual\": %d, \"sensorType\": \"%s\"}", 
