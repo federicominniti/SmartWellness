@@ -95,7 +95,7 @@ public class Application {
                         mqttHandler.setPoolMinPPM(tempFloat);
                         System.out.println("Done!");
                         break;
-                    case "set_pool_clorine_max_ppm":
+                    case "set_pool_chlorine_max_ppm":
                         tempFloat = Float.parseFloat(parts[1]);
                         System.out.println("Setting pool chlorine max ppm " + tempFloat);
                         mqttHandler.setPoolMaxPPM(tempFloat);
