@@ -2,6 +2,8 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulatio
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
+import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
+
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
@@ -62,7 +64,7 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
             logger.logInfo(responseString);
             try {
                 DataSample lightRegulationSample = parser.fromJson(responseString, DataSample.class);
-                //DBDriver.getInstance().insertAirQualitySample(airQualitySample);
+                MySQLDriver.getInstance().insertDataSample(lightRegulationSample);
                 lightRegulationSample.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 if(lightRegulationSample.getManual() == 1 && !manual.get()){
                     manual.set(true);
