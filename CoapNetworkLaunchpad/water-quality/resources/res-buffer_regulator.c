@@ -6,7 +6,6 @@
 
 #include "sys/log.h"
 
-/* Log configuration */
 #define LOG_MODULE "buffer-regulator"
 #define LOG_LEVEL LOG_LEVEL_APP
 
@@ -35,13 +34,8 @@ static void buffer_put_handler(coap_message_t *request, coap_message_t *response
 		memcpy(status, text, len);
 		if(strncmp(status, "ON", len) == 0) {
 			buffer_release = true;
-            //TO-DO BLINKING
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
-			LOG_INFO("Buffer regulator ON\n");
 		} else if(strncmp(status, "OFF", len) == 0) {
 			buffer_release = false;
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-			LOG_INFO("Buffer regulator OFF\n");
 		} else {
 			response_status = false;
 		}
@@ -53,3 +47,14 @@ static void buffer_put_handler(coap_message_t *request, coap_message_t *response
     		coap_set_status_code(response, BAD_REQUEST_4_00);
  	}
 }
+
+void manual_handler() {
+    manual = !manual;
+    buffer_release = !buffer_release;
+
+    if (buffer_release) {
+        LOG_INFO("Buffer regulator is ON\n");
+    } else
+        LOG_INFO("Buffer regulator is OFF\n");
+}
+
