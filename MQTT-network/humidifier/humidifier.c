@@ -7,7 +7,7 @@
 #include "sys/etimer.h"
 #include "sys/ctimer.h"
 #include "lib/sensors.h"
-#include "dev/button-hal.h"
+#include "os/dev/button-hal.h"
 #include "os/dev/leds.h"
 #include "os/sys/log.h"
 #include "mqtt-client.h"
@@ -47,6 +47,8 @@ static uint8_t state;
 #define STATE_SUBSCRIBED      	4	// Topics subscription done
 #define STATE_DISCONNECTED    	5	// Disconnected from MQTT broker
 
+//Declare the two protothreads: one for the sensing subsystem,
+//the other for handling leds blinking
 PROCESS_NAME(humidity_control_process);
 PROCESS_NAME(blinking_led);
 AUTOSTART_PROCESSES(&humidity_control_process, &blinking_led);
@@ -81,11 +83,17 @@ static struct mqtt_connection conn;
 
 PROCESS(humidity_control_process, "Humidity control process");
 
+//sets the humidifier ON/OFF
 static bool humidifier_on = false;
+
+//required humidity for a steam bath
 static int required_humidity = 90;
 
+//humidity level sensed by the humidity sensor
 static int humidity_level = 80;
 static int variation = 0;
+
+//tracks the manual mode for the actuator
 static bool manual = false;
 
 static mqtt_status_t status;
@@ -166,10 +174,17 @@ static bool have_connectivity(void) {
 	return true;
 }
 
+// let the actuator resource handle the manual mode
 static void manual_handler(){
     manual = !manual;
 	humidifier_on = !humidifier_on;
+	if (humidifier_on) {
+	    LOG_INFO("[MANUAL] Humidifier is ON\n");
+	} else {
+	    LOG_INFO("[MANUAL] Humidifier is OFF\n");
+	}
 }
+
 
 static void simulate_humidity_level(){
 	if(humidifier_on && humidity_level < 98) {
@@ -226,7 +241,7 @@ PROCESS_THREAD(humidity_control_process, ev, data) {
                 LOG_INFO("Connected to MQTT server\n"); 
 			} 
 			if(state==STATE_CONNECTED) {
-				// Subscribe to a topic
+				// topic subscription
 				strcpy(sub_topic,"humidity_control");
 				status = mqtt_subscribe(&conn, NULL, sub_topic, MQTT_QOS_LEVEL_0);
 				if(status == MQTT_STATUS_OUT_QUEUE_FULL){
@@ -236,6 +251,8 @@ PROCESS_THREAD(humidity_control_process, ev, data) {
 				state = STATE_SUBSCRIBED;
 			}	  
 			if(state == STATE_SUBSCRIBED) {
+			    // simulate sensed values and publishing of the information for the collector
+
 				sprintf(pub_topic, "%s", "humidity");
 
 				simulate_humidity_level();
@@ -268,7 +285,7 @@ PROCESS_THREAD(humidity_control_process, ev, data) {
 PROCESS(blinking_led, "Led blinking process");
 
 static struct etimer registration_led_timer;
-static struct etimer buffer_led_timer;
+static struct etimer humidifier_led_timer;
 static struct etimer led_on_timer;
 
 PROCESS_THREAD(blinking_led, ev, data)
@@ -279,6 +296,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 
+	//yellow led blinking until the connection to the border router and the collector is not complete
 	while(state != STATE_SUBSCRIBED){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
@@ -289,18 +307,20 @@ PROCESS_THREAD(blinking_led, ev, data)
 		}
 	}
 
-	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
+	etimer_set(&humidifier_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+	// if the humidifier is ON, green and yellow leds are blinking
+	// if the humidifier is OFF, only green led is blinking
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
-			if(etimer_expired(&buffer_led_timer)){
+			if(etimer_expired(&humidifier_led_timer)){
 				if(humidifier_on){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 				}
 				leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
-				etimer_restart(&buffer_led_timer);
+				etimer_restart(&humidifier_led_timer);
 				etimer_restart(&led_on_timer);
 			}
 			if(etimer_expired(&led_on_timer)){

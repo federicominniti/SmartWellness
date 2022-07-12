@@ -204,7 +204,7 @@ static void manual_handler(){
 	manual = !manual;
 }
 
-// calculate a random float value between a specified range
+// calculate a random int range [a,b)
 int random_in_range(int a, int b) {
     int v = random_rand() % (b-a);
     return v + a;
@@ -314,7 +314,7 @@ PROCESS_THREAD(access_control_process, ev, data) {
 PROCESS(blinking_led, "Led blinking process");
 
 static struct etimer registration_led_timer;
-static struct etimer buffer_led_timer;
+static struct etimer access_led_timer;
 static struct etimer led_on_timer;
 
 PROCESS_THREAD(blinking_led, ev, data)
@@ -336,14 +336,14 @@ PROCESS_THREAD(blinking_led, ev, data)
 		}
 	}
 
-	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
+	etimer_set(&access_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
-	// depending on the light status the led is updated with its leds corresponding colour
+	// depending on the light status the led is updated with its leds corresponding color
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
-			if(etimer_expired(&buffer_led_timer)){
+			if(etimer_expired(&access_led_timer)){
 				if(light_colour == RED){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
 				}
@@ -353,7 +353,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 				else if(light_colour == GREEN){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
 				}
-				etimer_restart(&buffer_led_timer);
+				etimer_restart(&access_led_timer);
 				etimer_restart(&led_on_timer);
 			}
 			if(etimer_expired(&led_on_timer)){
