@@ -19,13 +19,8 @@
 #include <sys/node-id.h>
 
 #define LOG_MODULE "access-control"
-#ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
-#define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
-#else
-#define LOG_LEVEL LOG_LEVEL_DBG
-#endif
 
-/* MQTT broker address. */
+// MQTT broker address
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
 static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
@@ -33,9 +28,8 @@ static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 // Default config values
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
+// Publish interval of sensed values
 #define PUBLISH_INTERVAL	        (5 * CLOCK_SECOND)
-
-// We assume that the broker does not require authentication
 
 /* Various states */
 static uint8_t state;
@@ -55,11 +49,8 @@ AUTOSTART_PROCESSES(&access_control_process, &blinking_led);
 #define MAX_TCP_SEGMENT_SIZE    32
 #define CONFIG_IP_ADDR_STR_LEN  64
 
-/*
- * Buffers for Client ID and Topics.
- */
-#define BUFFER_SIZE 64
 
+#define BUFFER_SIZE 64
 static char client_id[BUFFER_SIZE];
 static char pub_topic[BUFFER_SIZE];
 static char sub_topic[BUFFER_SIZE];
@@ -68,30 +59,41 @@ static char sub_topic[BUFFER_SIZE];
 #define STATE_MACHINE_PERIODIC (CLOCK_SECOND >> 1)
 static struct etimer periodic_timer;
 
-/*
- * The main MQTT buffers.
- * We will need to increase if we start publishing more data.
- */
+//The MQTT buffers.
 #define APP_BUFFER_SIZE 512
 static char app_buffer[APP_BUFFER_SIZE];
 
 static struct mqtt_message *msg_ptr = 0;
-
 static struct mqtt_connection conn;
 
 PROCESS(access_control_process, "Access control process");
 
+// Light colour for control access
 enum Colour {RED = 0, YELLOW = 1, GREEN = 2}; 
 static enum Colour light_colour = GREEN;
+
+// Lock on the entrance door
 static bool entrance_door_locked = false;
 
+// Actual number of people in the steam bath
 static int number_of_people = 0;
+
+// tracks if the access regulator system is in manual mode
 static bool manual = false;
 
+// Factor to simulate sensed values
+static int factor = -1;
+
+// the MQTT status
 static mqtt_status_t status;
 static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
-// Incoming message handling
+/* 
+	Handling incoming messages from the collector
+	If the access controller receive 0, light color become green and the entrance door is unlocked
+	If the access controller receive 1, light color become yellow and the entrance door is unlocked
+	If the access controller receive 2, light color become red and the entrance door is locked
+*/
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk, uint16_t chunk_len) {
 	if(strcmp(topic, "access_regulator") == 0) {
 		if(strcmp((const char*) chunk, "0") == 0) {
@@ -118,12 +120,6 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
 				entrance_door_locked = true;
 				LOG_INFO("Entrance door locked\n");
 			}
-
-			//Handling of collector chashes
-			/*if(number_of_people > 15){
-				LOG_INFO("%d people exited for security reason\n", (number_of_people-15));
-				number_of_people = 15;
-			}*/
 		}
 	}
 	else {
@@ -177,6 +173,7 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
 	}
 }
 
+
 static bool have_connectivity(void) {
 	if(uip_ds6_get_global(ADDR_PREFERRED) == NULL || uip_ds6_defrt_choose() == NULL) {
 		return false;
@@ -184,6 +181,7 @@ static bool have_connectivity(void) {
 	return true;
 }
 
+// let the actuator resource handle the manual mode
 static void manual_handler(){
 	entrance_door_locked = !entrance_door_locked;
 	if(entrance_door_locked){
@@ -205,17 +203,21 @@ static void manual_handler(){
 	manual = !manual;
 }
 
+// calculate a random float value between a specified range
 int random_in_range(int a, int b) {
     int v = random_rand() % (b-a);
     return v + a;
 }
-static int factor = -1;
+
+/*
+	Adjust the factor denpending on the number of people and the status of the entrance door
+	Updating of the number of people based on the adjusted factor 
+*/
 static void simulate_of_entrance(){
 	if(!entrance_door_locked && number_of_people == 0 && factor == -1){
 		factor = 1;
 	}
 	else if(entrance_door_locked){
-		//entrance door closed or number of people greater than 30
 		factor = -1;
 	}
 
@@ -242,11 +244,11 @@ PROCESS_THREAD(access_control_process, ev, data) {
 	// Broker registration					 
 	mqtt_register(&conn, &access_control_process, client_id, mqtt_event, MAX_TCP_SEGMENT_SIZE);
 
+	// Type of the sensor considered
 	static char sensorType[20] = "presenceSensor";
 			
 	state=STATE_INIT;
 				    
-	// Initialize periodic timer to check the status 
 	etimer_set(&periodic_timer, PUBLISH_INTERVAL);
 
 	while(1) {
@@ -268,7 +270,7 @@ PROCESS_THREAD(access_control_process, ev, data) {
                 LOG_INFO("Connected to MQTT server\n"); 
 			} 
 			if(state==STATE_CONNECTED) {
-				// Subscribe to a topic
+				//topic subscription
 				strcpy(sub_topic,"access_regulator");
 				status = mqtt_subscribe(&conn, NULL, sub_topic, MQTT_QOS_LEVEL_0);
 				if(status == MQTT_STATUS_OUT_QUEUE_FULL){
@@ -278,6 +280,7 @@ PROCESS_THREAD(access_control_process, ev, data) {
 				state = STATE_SUBSCRIBED;
 			}	  
 			if(state == STATE_SUBSCRIBED) {
+				// simulate sensed values and publishing of the information for the collector
 				sprintf(pub_topic, "%s", "number_of_people");
 
 				if(ev == button_hal_press_event){
@@ -319,8 +322,9 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	etimer_set(&registration_led_timer, 1*CLOCK_SECOND);
 
+	//yellow led blinking until the connection to the border router and the collector is not complete
 	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
-
+	
 	while(state != STATE_SUBSCRIBED){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
@@ -334,6 +338,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+	// depending on the light status the led is updated with its leds corresponding colour
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){

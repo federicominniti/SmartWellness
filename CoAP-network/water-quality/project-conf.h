@@ -48,4 +48,4 @@
 
 #define LOG_LEVEL_APP LOG_LEVEL_DBG
 
-#endif
+#endif /* PROJECT_CONF_H_ */
