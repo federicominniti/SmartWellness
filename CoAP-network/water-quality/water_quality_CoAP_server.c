@@ -136,8 +136,7 @@ PROCESS_THREAD(water_quality_server, ev, data){
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
 			if(ev == button_hal_press_event){
 				//let the actuator resource handle the manual mode
-				manual = !manual;
-				buffer_release = !buffer_release;
+				manual_handler();
 			}
 
 			res_ph_sensor.trigger();	
