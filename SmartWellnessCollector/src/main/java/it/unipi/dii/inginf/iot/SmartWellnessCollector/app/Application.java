@@ -148,25 +148,30 @@ public class Application {
     }
 
     private static void printUsage() {
-        String output = "\nSmartWellness Collector commands: \n\n" +
-                "AMBIENT: GYM \n" +
-                "get_gym_temperature            <--- get current T in the gym \n" +
-                "set_gym_ac_temperature [INT]   <--- set AC T in the gym \n" +
-                "set_gym_ac [ON/OFF]            <--- force AC ON/OFF in the gym \n" +
-                "get_gym_lux                    <--- get gym current lux \n" +
-                "set_gym_min_lux [INT]          <--- set gym min lux \n\n" +
-
-                "AMBIENT: POOL\n" +
-                "get_pool_ph                    <--- get current pool ph level \n" +
-                "set_pool_buffer [ON/OFF]       <--- set pool buffer regulator ON/OFF \n" +
-                "get_pool_chlorine              <--- get current chlorine level in the gym \n" +
-                "set_pool_ch_regulator [ON/OFF] <--- regulate chlorine level in the gym \n\n" +
-
-                "AMBIENT: STEAM BATH\n" +
-                "get_sb_temperature             <--- get temperature in steam bath\n" +
-                "get_sb_temperature [INT]       <--- set temperature in steam bath\n" +
-                "get_sb_presence                <--- get num of people in steam bath\n" +
-                "set_light [R/G/Y]              <--- set light outside of steam bath \n";
+        String output = "****** SmartWellness Collector ******\n" +
+                "Instert a command:\n\n" +
+                "--- GYM ---\n" +
+                "get_gym_temperature                           <--- get current temperature in the gym \n" +
+                "set_gym_ac_temperature [NUM]                  <--- set AC temperature in the gym \n" +
+                "get_gym_ac_temperature                        <--- get AC normal level temperature in the gym \n" +
+                "set_gym_ac_upper_bound                        <--- get AC upper bound in the gym\n" +
+                "get_gym_lux                                   <--- get gym current lux \n" +
+                "set_gym_crepuscular_intermediate_level [NUM]  <--- set gym intermediate level of lux for the crepuscular sensor\n" +
+                "set_gym_crepuscular_max_level [NUM]           <--- get gym max level of lux for the crepuscular sensor\n\n" +
+                "--- POOL ---\n" +
+                "get_pool_ph_level                             <--- get current pool ph level \n" +
+                "set_pool_ph_lower_bound [NUM]                 <--- set pool lower bound for the ph level\n" +
+                "set_pool_ph_normal_level [NUM]                <--- set pool ph normal level\n" +
+                "get_pool_chlorine_level                       <--- get current pool chlorine level \n" +
+                "set_pool_chlorine_min_ppm [NUM]               <--- set pool minimum value of PPM for the chlorine sensor\n" +
+                "set_pool_chlorine_max_ppm [NUM]               <--- set pool max value of PPM for the chlorine sensor\n\n" +
+                "--- STEAM BATH ---\n" +
+                "get_steam_bath_people_number                  <--- get current number of people in the steam bath\n" +
+                "set_steam_bath_intermediate_number [NUM]      <--- set steam bath intermediate people level\n" +
+                "set_steam_bath_max_number [NUM]               <--- set steam bath max number of people\n" +
+                "get_steam_bath_humidity_level                 <--- get current humidity level in the steam bath\n" + 
+                "set_steam_bath_humidity_min_percentage [NUM]  <--- set steam bath humidity min percentage\n" + 
+                "set_steam_bath_humidity_max_percentage [NUM]  <--- set steam bath humidity max percentage\n";
 
         System.out.println(output);
     }
