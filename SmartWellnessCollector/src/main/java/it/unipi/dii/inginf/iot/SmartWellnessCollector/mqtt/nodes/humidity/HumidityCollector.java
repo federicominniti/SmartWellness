@@ -4,6 +4,12 @@ import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.MqttNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
 
+/**
+ * Stub class for the MQTT device regulating the humidity of the steam bath.
+ * The class will handle notifications from the MQTT sensor and set the humidifier status accordingly, unless the
+ * device is in manual mode.
+ * Data from the sensor are also put in the database.
+ */
 public class HumidityCollector extends MqttNode<Integer, Boolean> {
     private static int MIN_HUMIDITY = 88;
     private static int MAX_HUMIDITY = 92;
@@ -12,6 +18,11 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         super(Boolean.FALSE, 80, "humidity", "humidity_control");
     }
 
+    /**
+     * Process the payload of a message from the humiditySensor
+     * @param payload the payload of the MQTT message
+     * @return true if a message should be sent to update the status of the humidifier, false otherwise
+     */
     public boolean processMessage(String payload){
         DataSample humiditySample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(humiditySample);

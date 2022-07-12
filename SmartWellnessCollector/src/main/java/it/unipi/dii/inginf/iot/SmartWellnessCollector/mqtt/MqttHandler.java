@@ -10,10 +10,13 @@ import org.eclipse.paho.client.mqttv3.*;
 
 import java.util.HashMap;
 
+/**
+ * MQTT handler for incoming messages from the MQTT sensors in the network
+ */
 public class MqttHandler implements MqttCallback {
 
     private final String BROKER = "tcp://127.0.0.1:1883";
-    private final String CLIENT_ID = "SmartSaunaCollector";
+    private final String CLIENT_ID = "SmartWellnessCollector";
     private final int RECONNECTION_INTERVAL = 5;
     private final int MAX_NUMBER_OF_RECONNECTION_TIMES = 7;
 
@@ -25,6 +28,9 @@ public class MqttHandler implements MqttCallback {
 
     private Logger logger;
 
+    /**
+     * Basic constructor, initializes the stubs for all the MQTT devices
+     */
     public MqttHandler () {
         parser = new Gson();
         logger = Logger.getInstance();
@@ -71,11 +77,12 @@ public class MqttHandler implements MqttCallback {
         }
     }
 
+    /**
+     * If the connection has been lost, try to reconnect after waiting some time
+     */
     @Override
     public void connectionLost(Throwable throwable) {
         System.out.println("WARNING: connection lost with the broker");
-        // We have lost the connection, we have to try to reconnect after waiting some time
-        // At each iteration we increase the time waited
         int times = 0;
         do {
             times++;
@@ -95,6 +102,11 @@ public class MqttHandler implements MqttCallback {
         System.out.println("INFO: connection with the broker restored");
     }
 
+    /**
+     * Handles an incoming new message and saves the payload in the logs.
+     * Depending on the topic of the message, the payload is handled by a specific device stub class
+     * @param topic the topic of the message
+     */
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         String payload = new String(mqttMessage.getPayload());
@@ -105,7 +117,6 @@ public class MqttHandler implements MqttCallback {
                 publishMessage(chlorineCollector.getACTUATOR_TOPIC(), (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
                 logger.logStatus("Chlorine regulator: " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
             }
-            //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
 
         if (topic.equals(humidityCollector.getSENSOR_TOPIC())) {
@@ -123,7 +134,6 @@ public class MqttHandler implements MqttCallback {
                 logger.logStatus("Light color: " + accessCollector.getLightColour());
                 logger.logStatus("Entrance door: " + accessCollector.getEntranceLock());
             }
-            //logger.logChlorineRegulator("Chlorine regulator " + (chlorineCollector.getChlorineRegulator() ? "ON" : "OFF"));
         }
     }
 

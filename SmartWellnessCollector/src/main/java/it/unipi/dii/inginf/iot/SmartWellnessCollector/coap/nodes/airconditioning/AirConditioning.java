@@ -21,7 +21,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.utils.AtomicFloat;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
-
+/**
+ * Stub class for the Coap device regulating the air conditioning in the gym.
+ * The class will receive notifications from the temperatureSensor and regulate the AC accordingly, unless the
+ * device is set in manual mode
+ */
 public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
     private AtomicInteger NORMAL_LEVEL = new AtomicInteger();
     private AtomicInteger UPPER_BOUND = new AtomicInteger();
@@ -37,6 +41,9 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         observeRelation = sensor.observe(new acCoapHandler());
     }
 
+    /**
+     * Performs a PUT request to set the AC system ON/OFF
+     */
     public void acSystemSwitch(boolean on) {
         if (actuator == null)
             return;
@@ -58,6 +65,9 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
 
+    /**
+     * Performs a PUT request to set working temperature of the AC
+     */
     public void setACTemperature(int temp) {
         if(actuator == null)
             return;
@@ -81,7 +91,10 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
         NORMAL_LEVEL.set(temp);
     }
 
-
+    /**
+     * Handler for the notifications from the temperatureSensor.
+     * Each sample is put in the database and in the log file
+     */
     private class acCoapHandler implements CoapHandler {
         public void onLoad(CoapResponse response) {
             String responseString = new String(response.getPayload());
@@ -101,10 +114,6 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                     else
                         logger.logStatus("MANUAL: AC is OFF");
                 }
-                //System.out.print("\n" + waterQualitySample.toString() + "\n>");
-                // remove old samples from the lastAirQualitySamples map
-                //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
-                //computeAverage();
             } catch (Exception e) {
                 logger.logError("The temperature sensor gave non-significant data");
                 e.printStackTrace();
@@ -115,29 +124,16 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 return;
             }
             else if(!actuatorStatus.get() && sensedData.get() >= UPPER_BOUND.get()) {
-                //logger.logAirQuality("CO2 level is HIGH: " + co2Level.get() + " ppm, the ventilation system is switched ON");
-                //for (CoapClient clientPumpSystem: clientVentilationSystemList) {
                 acSystemSwitch(true);
-                //}
                 actuatorStatus.set(true);
                 logger.logStatus("AC is now ON");
             }
 
-            // We don't turn off the ventilation as soon as the value is lower than the upper bound,
-            // but we leave a margin so that we don't have to turn on the system again right away
             else if (actuatorStatus.get() && sensedData.get()  == NORMAL_LEVEL.get()) {
-                //logger.logAirQuality("CO2 level is now fine: " + co2Level.get() + " ppm. Switch OFF the ventilation system");
-                //for (CoapClient clientVentilationSystem: clientVentilationSystemList) {
                 acSystemSwitch(false);
-                //}
                 actuatorStatus.set(false);
                 logger.logStatus("AC is now OFF");
             }
-
-            //else
-            //{
-            //    logger.logAirQuality("C02 level is fine: " + co2Level.get() + " ppm");
-            //}
         }
 
         public void onError() {

@@ -11,6 +11,12 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
+/**
+ * Stub class for the MQTT device regulating the chlorine of the pool.
+ * The class will handle notifications from the MQTT sensor and set the chlorine regulator status accordingly,
+ * unless the device is in manual mode.
+ * Data from the sensor are also put in the database.
+ */
 public class ChlorineCollector extends MqttNode<Float, Boolean>{
     private static float MIN_PPM = 1;
     private static float MAX_PPM = (float)2.5;
@@ -19,6 +25,11 @@ public class ChlorineCollector extends MqttNode<Float, Boolean>{
         super(Boolean.FALSE, 1.5F, "ppm", "chlorine_regulator");
     }
 
+    /**
+     * Process the payload of a message from the chlorineSensor
+     * @param payload the payload of the MQTT message
+     * @return true if a message should be sent to update the status of the regulator, false otherwise
+     */
     public boolean processMessage(String payload){
         DataSample chlorineSample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(chlorineSample);

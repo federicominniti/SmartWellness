@@ -31,21 +31,13 @@ public class MySQLDriver {
         databaseName = "smartwellness";
     }
 
-    /**
-     * @return the JDBC connection to be used to communicate with MySQL Database.
-     *
-     * @throws SQLException  in case the connection to the database fails.
-     */
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:mysql://"+ databaseIp + ":" + databasePort +
                         "/" + databaseName + "?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=CET",
                 databaseUsername, databasePassword);
     }
 
-    /**
-     * Insert the new sample received by the Air Quality sensor
-     * @param airQualitySample  sample to be received
-     */
+
     public void insertDataSample(DataSample dataSample) {
         try (
                 Connection connection = getConnection();

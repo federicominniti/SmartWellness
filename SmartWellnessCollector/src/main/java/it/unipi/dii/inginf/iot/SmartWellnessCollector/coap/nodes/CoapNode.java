@@ -1,23 +1,17 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes;
 
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import com.google.gson.Gson;
 import org.eclipse.californium.core.CoapClient;
-import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
-import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.CoapServer;
-import org.eclipse.californium.core.coap.MediaTypeRegistry;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.sql.Timestamp;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.utils.AtomicFloat;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
+/**
+ * Mother class for all Coap nodes stubs. It provides a default constructor for all devices, as well as
+ * default un/registration for Coap devices and basic setters and getters for the actuator and the sensor
+ * @param <SensedDataType> the data type for sensed values, must be thread-safe
+ * @param <ActuatorStatusType> the status type for the actuator, must be thread-safe
+ */
 public abstract class CoapNode<SensedDataType, ActuatorStatusType> {
     protected CoapClient sensor;
     protected CoapClient actuator;

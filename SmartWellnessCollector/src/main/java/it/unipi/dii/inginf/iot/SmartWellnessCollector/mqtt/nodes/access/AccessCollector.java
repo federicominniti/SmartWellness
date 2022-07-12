@@ -10,10 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.gson.Gson;
 
+/**
+ * Stub class for the MQTT device regulating the access to the steam bath.
+ * The class will handle notifications from the MQTT sensor and set the light and entrance door status accordingly,
+ * unless the device is in manual mode.
+ * Data from the sensor are also put in the database.
+ */
 public class AccessCollector extends MqttNode<Integer, Integer>{
     private static int INTERMEDIATE_NUMBER = 10;
     private static int MAX_NUMBER = 15;
 
+    //this class stub has two actuators, so the one of the entrance door is to be added to the
+    //one already provided by the mother class MqttNode
     private static boolean entranceDoorLocked;
     
     public AccessCollector() {
@@ -22,6 +30,11 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
         entranceDoorLocked = false;
     }
 
+    /**
+     * Calculates the correct status for the entrance door and the light outside the steam bath
+     * based on the current settings and the last value from the presenceSensor
+     * @return the status of the light
+     */
     public int calculateActuatorValue(){
         int light_colour = -1;
         if(actualValue < INTERMEDIATE_NUMBER){
@@ -39,6 +52,11 @@ public class AccessCollector extends MqttNode<Integer, Integer>{
         return light_colour;
     }
 
+    /**
+     * Process the payload of a message from the presenceSensor
+     * @param payload the payload of the MQTT message
+     * @return true if a message should be sent to update the status of the light and the door, false otherwise
+     */
     public boolean processMessage(String payload){
         DataSample accessSample = parser.fromJson(payload, DataSample.class);
         MySQLDriver.getInstance().insertDataSample(accessSample);

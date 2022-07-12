@@ -3,21 +3,17 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulatio
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
-
-import com.google.gson.Gson;
-import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
-import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.ArrayList;
 import java.sql.Timestamp;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
+/**
+ * Stub class for the Coap device regulating the illumination in the gym.
+ * The class will receive notifications from the luxSensor and regulate the light accordingly, unless the
+ * device is set in manual mode
+ */
 public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
     private AtomicInteger LOWER_BOUND_MAX_LUX = new AtomicInteger();
     private AtomicInteger LOWER_BOUND_INTERMEDIATE_LUX = new AtomicInteger();
@@ -28,6 +24,9 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
         LOWER_BOUND_INTERMEDIATE_LUX.set(lowBInt);
     }
 
+    /**
+     * Performs a PUT request to set the light to OFF(0)/ON(2)/LOW(1)
+     */
     private void lightSystemSwitch(int level) {
         if(actuator == null)
             return;
@@ -58,6 +57,10 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
         }
     }
 
+    /**
+     * Handler for the notifications from the luxSensor.
+     * Each sample is put in the database and in the log file
+     */
     private class LuxCoapHandler implements CoapHandler {
 		public void onLoad(CoapResponse response) {
             String responseString = new String(response.getPayload());
@@ -74,10 +77,6 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
                     actuatorStatus.set(manualSwitchSystem());
                 }
                 sensedData.set((int)lightRegulationSample.getValue());
-                //System.out.print("\n" + waterQualitySample.toString() + "\n>");
-                // remove old samples from the lastAirQualitySamples map
-                //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
-                //computeAverage();
             } catch (Exception e) {
                 logger.logError("The lux sensor gave non-significant data");
                 e.printStackTrace();

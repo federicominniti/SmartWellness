@@ -4,6 +4,13 @@ import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 //import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import com.google.gson.Gson;
 
+
+/**
+ * Mother class for all MQTT nodes stubs. It provides a default constructor for all devices, as well as
+ * basic setters and getters for the actuator and the sensor
+ * @param <SensedDataType> the data type for sensed values
+ * @param <ActuatorStatusType> the status type for the actuator
+ */
 public abstract class MqttNode<SensedDataType, ActuatorStatusType> {
     protected final String SENSOR_TOPIC;
     protected final String ACTUATOR_TOPIC;

@@ -3,6 +3,10 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.utils;
 import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.Float.*;
 
+/**
+ * java.util.concurrent.atomic.* does not provide an AtomicFloat class, so we have to create a custom thread-safe
+ * AtomicFlat class to handle possible concurrent notifications by the same Coap device
+ */
 public class AtomicFloat extends Number {
 
     private AtomicInteger bits;

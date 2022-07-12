@@ -3,11 +3,10 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 public class DataSample {
-    private int node; // Node ID
-    private float value; //Values of the specific sensor
-    private int manual;
-
-    private String sensorType;
+    private int node; // node id, identifies the device during a single deployment
+    private float value; //values of the specific sensor
+    private int manual; //if set to 1, the device is in manual mode and the actuator must not be controlled remotely
+    private String sensorType; //the name of the sensor, identifies the device across different deployments
     private Timestamp timestamp; // set by the collector
 
 
@@ -17,23 +16,6 @@ public class DataSample {
         this.manual = manual;
         this.sensorType = sensorType;
         this.timestamp = timestamp;
-    }
-
-    /**
-     * Function used to check if the sample is valid (if it has been done in the last 30sec)
-     * @return  true if the timestamp is greater than 30 seconds ago, otherwise false
-     * 
-     * <--- CHECK THIS
-     */
-
-     //TO DO
-    public boolean isValid ()
-    {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(Calendar.SECOND, -30); // -30 seconds
-        Timestamp thirtySecondsAgo = new Timestamp(calendar.getTime().getTime());
-        return timestamp.after(thirtySecondsAgo);
     }
 
 

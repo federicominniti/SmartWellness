@@ -19,6 +19,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 
+/**
+ * Stub class for the Coap device regulating the pool's pH.
+ * The class will receive notifications from the phSensor and regulate the actuator accordingly, unless the
+ * device is set in manual mode
+ */
 public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
     private AtomicFloat LOWER_BOUND = new AtomicFloat();
     private AtomicFloat NORMAL_LEVEL = new AtomicFloat();
@@ -38,6 +43,9 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
         unregisterNode(ip);
     }
 
+    /**
+     * Performs a PUT request to set the buffer regulator ON/OFF
+     */
     public void bufferRegulatorSwitch(boolean on) {
         if(actuator == null)
             return;
@@ -59,6 +67,10 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
         }, msg, MediaTypeRegistry.TEXT_PLAIN);
     }
 
+    /**
+     * Handler for the notifications from the phSensor.
+     * Each sample is put in the database and in the log file
+     */
     private class PHCoapHandler implements CoapHandler {
         public void onLoad(CoapResponse response) {
             String responseString = new String(response.getPayload());
@@ -77,11 +89,6 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                     else
                         logger.logStatus("MANUAL: buffer regulator OFF");
                 }
-
-                //System.out.print("\n" + waterQualitySample.toString() + "\n>");
-                // remove old samples from the lastAirQualitySamples map
-                //lastSamples.entrySet().removeIf(entry -> !entry.getValue().isValid());
-                //computeAverage();
             } catch (Exception e) {
                 logger.logError("The PH sensor gave non-significant data");
                 e.printStackTrace();
@@ -92,29 +99,15 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 return;
             }
             else if(!actuatorStatus.get() && sensedData.get() < LOWER_BOUND.get()) {
-                //logger.logAirQuality("CO2 level is HIGH: " + co2Level.get() + " ppm, the ventilation system is switched ON");
-                //for (CoapClient clientPumpSystem: clientVentilationSystemList) {
                 bufferRegulatorSwitch(true);
-                //}
                 actuatorStatus.set(true);
                 logger.logStatus("Buffer regulator ON");
             }
-
-            // We don't turn off the ventilation as soon as the value is lower than the upper bound,
-            // but we leave a margin so that we don't have to turn on the system again right away
             else if (actuatorStatus.get() && sensedData.get()  >= NORMAL_LEVEL.get()) {
-                //logger.logAirQuality("CO2 level is now fine: " + co2Level.get() + " ppm. Switch OFF the ventilation system");
-                //for (CoapClient clientVentilationSystem: clientVentilationSystemList) {
                 bufferRegulatorSwitch(false);
-                //}
                 actuatorStatus.set(false);
                 logger.logStatus("Buffer regulator OFF");
             }
-
-            //else
-            //{
-            //    logger.logAirQuality("C02 level is fine: " + co2Level.get() + " ppm");
-            //}
         }
 
         public void onError() {

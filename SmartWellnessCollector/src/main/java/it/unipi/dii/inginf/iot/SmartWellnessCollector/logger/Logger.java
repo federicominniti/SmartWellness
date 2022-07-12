@@ -6,6 +6,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * Simple class to perform logging of the data from sensors and status information for the actuators
+ */
 public class Logger {
     private static Logger instance;
     private static java.util.logging.Logger logger;
@@ -27,7 +30,7 @@ public class Logger {
             fileHandler.setFormatter(new Formatter() {
                 @Override
                 public String format(LogRecord logRecord) {
-                    return logRecord.getMessage() + "\n"; // only the message of the log
+                    return logRecord.getMessage() + "\n";
                 }
             });
             logger.setUseParentHandlers(false);
@@ -36,11 +39,6 @@ public class Logger {
         }
     }
 
-    /**
-     * This function adds a new log in the file
-     * @param topic     topic of the message
-     * @param message   message to be shown
-     */
     public void log (String topic, String message)
     {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());

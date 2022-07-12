@@ -13,24 +13,23 @@ import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Coap devices will register with the CoapNodesServer through a POST request
+ */
 public class CoapNodesServer extends CoapServer {
-    private WaterQuality waterQuality;
-    private AirConditioning airConditioning;
-    private LightRegulation lightRegulation;
+    private final WaterQuality waterQuality;
+    private final AirConditioning airConditioning;
+    private final LightRegulation lightRegulation;
 
+    /**
+     * Initializes Coap nodes stubs with their default working settings for actuators control
+     */
     public CoapNodesServer() throws SocketException {
         this.add(new CoapRegistrationResource());
         waterQuality = new WaterQuality((float)7.2, (float)7.6);
         airConditioning = new AirConditioning(18, 19);
         lightRegulation = new LightRegulation(350, 1500);
     }
-
-    /*      REGISTER AND UNREGISTER DEVICES     */
-
-    /*      GET MEASURES FROM SENSORS     */
-
-
-    
 
     /*--------------------GYM TEMPERATURE-------------------*/
     public int getGymTemperature() {
@@ -48,6 +47,7 @@ public class CoapNodesServer extends CoapServer {
     public void setGymACUpperBound(int temp) {
         airConditioning.setUPPER_BOUND(temp);
     }
+
 
     /*--------------------GYM LIGHT-------------------*/
     public int getGymLuxValue() {
@@ -80,6 +80,9 @@ public class CoapNodesServer extends CoapServer {
             super("registration");
         }
 
+        /**
+         * Handles registration for each type of device
+         */
         @Override
         public void handlePOST(CoapExchange exchange) {
             String deviceType = exchange.getRequestText();
@@ -109,6 +112,9 @@ public class CoapNodesServer extends CoapServer {
                 exchange.respond(CoAP.ResponseCode.NOT_ACCEPTABLE, "Unsuccessful".getBytes(StandardCharsets.UTF_8));
         }
 
+        /**
+         * Handles DELETE requests for each type of device
+         */
         @Override
         public void handleDELETE(CoapExchange exchange) {
             String[] request = exchange.getRequestText().split("-");
