@@ -15,7 +15,6 @@
 
 #include <string.h>
 #include <strings.h>
-
 #include <sys/node-id.h>
 
 #define LOG_MODULE "access-control"
