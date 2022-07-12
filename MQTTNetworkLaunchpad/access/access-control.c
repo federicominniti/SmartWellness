@@ -7,7 +7,7 @@
 #include "sys/etimer.h"
 #include "sys/ctimer.h"
 #include "lib/sensors.h"
-#include "dev/button-hal.h"
+#include "os/dev/button-hal.h"
 #include "os/dev/leds.h"
 #include "os/sys/log.h"
 #include "mqtt-client.h"
@@ -25,17 +25,14 @@
 #define LOG_LEVEL LOG_LEVEL_DBG
 #endif
 
-/* MQTT broker address. */
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
 static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 
-// Default config values
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
 #define PUBLISH_INTERVAL	        (5 * CLOCK_SECOND)
 
-// We assume that the broker does not require authentication
 
 /* Various states */
 static uint8_t state;
@@ -51,13 +48,9 @@ PROCESS_NAME(access_control_process);
 PROCESS_NAME(blinking_led);
 AUTOSTART_PROCESSES(&access_control_process, &blinking_led);
 
-/* Maximum TCP segment size for outgoing segments of our socket */
 #define MAX_TCP_SEGMENT_SIZE    32
 #define CONFIG_IP_ADDR_STR_LEN  64
 
-/*
- * Buffers for Client ID and Topics.
- */
 #define BUFFER_SIZE 64
 
 static char client_id[BUFFER_SIZE];

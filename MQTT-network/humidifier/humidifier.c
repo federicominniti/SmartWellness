@@ -19,11 +19,6 @@
 #include <sys/node-id.h>
 
 #define LOG_MODULE "humidifier"
-#ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
-#define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
-#else
-#define LOG_LEVEL LOG_LEVEL_DBG
-#endif
 
 /* MQTT broker address. */
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
