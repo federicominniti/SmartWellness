@@ -2,7 +2,7 @@
 #include <string.h>
 #include "contiki.h"
 #include "coap-engine.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 
 #include "sys/log.h"
 
@@ -19,9 +19,13 @@ RESOURCE(res_buffer_regulator,
          buffer_put_handler,
          NULL);
 
+//sets the ON/OFF buffer regulator
 bool buffer_release = false;
+
+//tracks if the buffer regulator is in manual mode
 bool manual = false;
 
+//change the status of the buffer regulator based on a CoAP request from the collector
 static void buffer_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	size_t len = 0;
 	const char *text = NULL;

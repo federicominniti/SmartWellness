@@ -8,7 +8,6 @@
 #include "os/dev/leds.h"
 #include "coap-blocking-api.h"
 #include "os/dev/button-hal.h"
-
 #include "node-id.h"
 #include "net/ipv6/simple-udp.h"
 #include "net/ipv6/uip.h"
@@ -20,10 +19,10 @@
 
 #include "sys/log.h"
 
-//Observing server End-Point address
+//Address of the observing java collector
 #define SERVER_EP "coap://[fd00::1]:5683"
 
-//Interval for registration retries with the observing server
+//Interval for registration retries with the observing collector
 #define REGISTRATION_INTERVAL 2
 
 //Type of device
@@ -81,8 +80,7 @@ static bool is_connected() {
 	return false;
 }
 
-// Handler for connection requests sent by the water quality server
-// In case the reply is 'Success' the water quality server is connected to the collector
+// Handler for connection requests sent by the collector
 void client_chunk_handler(coap_message_t *response) {
 	const uint8_t *chunk;
 	if(response == NULL) {
@@ -103,8 +101,6 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	PROCESS_BEGIN();
 
 	static coap_endpoint_t server_ep;
-
-    // This way the packet can be treated as pointer as usual
     static coap_message_t request[1];
 
 	LOG_INFO("Starting water quality CoAP server\n");
@@ -138,11 +134,12 @@ PROCESS_THREAD(water_quality_server, ev, data){
 	while(1) {
 		PROCESS_WAIT_EVENT();
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
-			//handle manual buffer release with the button
 			if(ev == button_hal_press_event){
+				//let the actuator resource handle the manual mode
 				manual = !manual;
 				buffer_release = !buffer_release;
 			}
+
 			res_ph_sensor.trigger();	
 			etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 		}
@@ -157,6 +154,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	etimer_set(&registration_led_timer, 1*CLOCK_SECOND);
 
+	//yellow led blinking until the connection to the border router and the collector is not complete
 	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 
 	while(!is_connected() || !registered){
@@ -172,6 +170,9 @@ PROCESS_THREAD(blinking_led, ev, data)
 	etimer_set(&buffer_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+	/*if the buffer regulator is on the both the yellow and green leds are blinking, otherwise
+      only the green led is blinking
+    */
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){

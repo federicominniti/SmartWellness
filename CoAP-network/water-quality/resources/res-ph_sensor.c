@@ -6,7 +6,7 @@
 #include <math.h>
 #include "contiki.h"
 #include "coap-engine.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 #include "sys/node-id.h"
 #include "random.h"
  
@@ -27,11 +27,15 @@ EVENT_RESOURCE(res_ph_sensor,
          NULL,
          NULL,
          NULL,
-	 ph_event_handler);
- 
+	    ph_event_handler);
+
+//the ph level sensed by the sensor
 static float ph_level = 7.0;
+
+//the sensor type
 static char sensorType[20] = "phSensor";
  
+//calculate a random float value between a specified range
 int random_in_range(int a, int b) {
     int v = random_rand() % (b-a);
     return v + a;
@@ -48,14 +52,16 @@ unsigned short digitsAfter(float f){
     return(10*(f-digitsBefore(f)));
 }
  
+/*
+    when the buffer regulator is OFF, the ph level decrease
+    when the buffer regulator is ON, if the ph level is in the correct rage (7.4 - 7.9) it remain in that range (may be caused by manual activation)
+    when the buffer regulator is ON, if the ph level is not in the correct rage it increment its value
+*/
 static void simulate_ph_values () {
     float value = 0;
-
 	if(buffer_release) {
-        // if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
-        // the pH remains in the right range
         if (ph_level >= 7.4 && ph_level <= 7.9) {
-	   ph_level = 7.0 + (float)random_in_range(4, 8) / 10.0;
+	        ph_level = 7.0 + (float)random_in_range(4, 8) / 10.0;
         } else {
             ph_level = ph_level + random_in_range(1,3) / 10.0;
         }
