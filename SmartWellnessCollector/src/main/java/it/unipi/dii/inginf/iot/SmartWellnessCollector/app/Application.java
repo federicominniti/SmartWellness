@@ -157,7 +157,7 @@ public class Application {
                 "set_gym_ac_upper_bound                        <--- get AC upper bound in the gym\n" +
                 "get_gym_lux                                   <--- get gym current lux \n" +
                 "set_gym_crepuscular_intermediate_level [NUM]  <--- set gym intermediate level of lux for the crepuscular sensor\n" +
-                "set_gym_crepuscular_max_level [NUM]           <--- get gym max level of lux for the crepuscular sensor\n\n" +
+                "set_gym_crepuscular_max_level [NUM]           <--- get gym max level of lux for the crepuscular sensor\n\n" +
                 "--- POOL ---\n" +
                 "get_pool_ph_level                             <--- get current pool ph level \n" +
                 "set_pool_ph_lower_bound [NUM]                 <--- set pool lower bound for the ph level\n" +
