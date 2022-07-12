@@ -40,6 +40,8 @@ static uint8_t state;
 #define STATE_SUBSCRIBED      	4	// Topics subscription done
 #define STATE_DISCONNECTED    	5	// Disconnected from MQTT broker
 
+//Declare the two protothreads: one for the sensing subsystem,
+//the other for handling leds blinking
 PROCESS_NAME(access_control_process);
 PROCESS_NAME(blinking_led);
 AUTOSTART_PROCESSES(&access_control_process, &blinking_led);
