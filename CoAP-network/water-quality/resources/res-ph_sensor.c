@@ -54,8 +54,8 @@ unsigned short digitsAfter(float f){
  
 /*
     when the buffer regulator is OFF, the ph level decrease
-    when the buffer regulator is ON, if the ph level is in the correct rage (7.4 - 7.9) it remain in that range (may be caused by manual activation)
-    when the buffer regulator is ON, if the ph level is not in the correct rage it increment its value
+    when the buffer regulator is ON, if the ph level is in the correct rage (7.4 - 7.9) it remains in that range (may be caused by manual activation)
+    when the buffer regulator is ON, if the ph level is not in the correct rage it increments its value
 */
 static void simulate_ph_values () {
     float value = 0;

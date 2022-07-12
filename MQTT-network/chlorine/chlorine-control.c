@@ -12,18 +12,14 @@
 #include "os/sys/log.h"
 #include "mqtt-client.h"
 #include "random.h"
+
 #include <string.h>
 #include <strings.h>
 #include <sys/node-id.h>
 
 #define LOG_MODULE "chlorine-control"
-#ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
-#define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
-#else
-#define LOG_LEVEL LOG_LEVEL_DBG
-#endif
 
-/* MQTT broker address. */
+// MQTT broker address
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
 static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
@@ -31,9 +27,8 @@ static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 // Default config values
 #define DEFAULT_BROKER_PORT         1883
 #define DEFAULT_PUBLISH_INTERVAL    (30 * CLOCK_SECOND)
+// Publish interval of sensed values
 #define PUBLISH_INTERVAL	        (5 * CLOCK_SECOND)
-
-// We assume that the broker does not require authentication
 
 /* Various states */
 static uint8_t state;
@@ -45,6 +40,8 @@ static uint8_t state;
 #define STATE_SUBSCRIBED      	4	// Topics subscription done
 #define STATE_DISCONNECTED    	5	// Disconnected from MQTT broker
 
+//Declare the two protothreads: one for the sensing subsystem,
+//the other for handling leds blinking
 PROCESS_NAME(chlorine_control_process);
 PROCESS_NAME(blinking_led);
 AUTOSTART_PROCESSES(&chlorine_control_process, &blinking_led);
@@ -53,11 +50,7 @@ AUTOSTART_PROCESSES(&chlorine_control_process, &blinking_led);
 #define MAX_TCP_SEGMENT_SIZE    32
 #define CONFIG_IP_ADDR_STR_LEN  64
 
-/*
- * Buffers for Client ID and Topics.
- */
 #define BUFFER_SIZE 64
-
 static char client_id[BUFFER_SIZE];
 static char pub_topic[BUFFER_SIZE];
 static char sub_topic[BUFFER_SIZE];
@@ -66,10 +59,7 @@ static char sub_topic[BUFFER_SIZE];
 #define STATE_MACHINE_PERIODIC (CLOCK_SECOND >> 1)
 static struct etimer periodic_timer;
 
-/*
- * The main MQTT buffers.
- * We will need to increase if we start publishing more data.
- */
+//The MQTT buffers
 #define APP_BUFFER_SIZE 512
 static char app_buffer[APP_BUFFER_SIZE];
 
@@ -79,16 +69,27 @@ static struct mqtt_connection conn;
 
 PROCESS(chlorine_control_process, "Chlorine control process");
 
+//sets the chlorine regulator ON/OFF
 static bool increase_chlorine = false;
+
+// min value and max value of chlorine level
 #define MIN_CHLORINE 0
 #define MAX_CHLORINE 20
+
+// the currente chlorine level
 static float chlorine_level = (float)1.5;
+
+//variation of the chlorine level to simulate the sensing process
 static float variation = 0;
+
+// tracks if the access regulator system is in manual mode
 static bool manual = false;
 
+// the MQTT status
 static mqtt_status_t status;
 static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
+//calculate a random float value between a specified range
 int random_in_range(int a, int b) {
     int v = random_rand() % (b-a);
     return v + a;
@@ -105,8 +106,11 @@ unsigned short digitsAfter(float f) {
     return(10*(f-digitsBefore(f)));
 }
 
-
-// Incoming message handling
+/* 
+	Handling incoming messages from the collector
+	If the chlorine controller receive ON, the chlorine regulator is activated
+	If the chlorine controller receive OFF, the chlorine regulator is disactivated
+*/
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk, uint16_t chunk_len) {
 	if(strcmp(topic, "chlorine_regulator") == 0) {
 		if(strcmp((const char*) chunk, "ON") == 0) {
@@ -176,18 +180,20 @@ static bool have_connectivity(void) {
 	return true;
 }
 
+// let the actuator resource handle the manual mode
 static void manual_handler(){
     manual = !manual;
 	increase_chlorine = !increase_chlorine;
 }
 
+/*
+    when the chlorine regulator is OFF, the chlorine level decrease
+    when the chlorine regulator is ON, if the chlorine level is in the correct rage (2.5 - 3) it remains in that range (may be caused by manual activation)
+    when the chlorine regulator is ON, if the chlorine level is not in the correct rage it increments its value
+*/
 static void simulate_chlorine_level(){
-	// simulate sensed values		
-	//TODO GESTIONE MANUAL CHE RIMANGA NEL RANGE SE c'è ARRIVATO	
 	float old_chlorine = chlorine_level;
 	if(increase_chlorine) {
-		// if the pH is in the right interval and the buffer regulator is on (may be caused by manual activation)
-		// the pH remains in the right range
 		if (old_chlorine >= 2.5 && old_chlorine <= 3.0) {
 			chlorine_level = (float)random_in_range(25, 30) * 0.1;
 		} else {
@@ -202,7 +208,6 @@ static void simulate_chlorine_level(){
 			if (chlorine_level < 0)
 			    chlorine_level = 0;
 		}
-		//with the manual mode activated the chlorine level could arrive to 0
 	}
 
 	LOG_INFO("New chlorine value: %u.%u\n", digitsBefore(chlorine_level), digitsAfter(chlorine_level));				
@@ -222,6 +227,7 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 	// Broker registration					 
 	mqtt_register(&conn, &chlorine_control_process, client_id, mqtt_event, MAX_TCP_SEGMENT_SIZE);
 
+	// Type of the sensor considered
 	static char sensorType[20] = "chlorineSensor";
 			
 	state=STATE_INIT;
@@ -248,7 +254,7 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
                 LOG_INFO("Connected to MQTT server\n"); 
 			} 
 			if(state==STATE_CONNECTED) {
-				// Subscribe to a topic
+				//topic subscription
 				strcpy(sub_topic,"chlorine_regulator");
 				status = mqtt_subscribe(&conn, NULL, sub_topic, MQTT_QOS_LEVEL_0);
 				if(status == MQTT_STATUS_OUT_QUEUE_FULL){
@@ -258,6 +264,7 @@ PROCESS_THREAD(chlorine_control_process, ev, data) {
 				state = STATE_SUBSCRIBED;
 			}	  
 			if(state == STATE_SUBSCRIBED) {
+				// simulate sensed values and publishing of the information for the collector
 				sprintf(pub_topic, "%s", "ppm");
 
 				simulate_chlorine_level();

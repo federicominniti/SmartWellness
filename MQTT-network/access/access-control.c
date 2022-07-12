@@ -91,9 +91,9 @@ static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
 /* 
 	Handling incoming messages from the collector
-	If the access controller receive 0, light color become green and the entrance door is unlocked
-	If the access controller receive 1, light color become yellow and the entrance door is unlocked
-	If the access controller receive 2, light color become red and the entrance door is locked
+	If the access controller receives 0, light color becomes green and the entrance door is unlocked
+	If the access controller receives 1, light color becomes yellow and the entrance door is unlocked
+	If the access controller receives 2, light color becomes red and the entrance door is locked
 */
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk, uint16_t chunk_len) {
 	if(strcmp(topic, "access_regulator") == 0) {
