@@ -81,7 +81,6 @@ static bool is_connected() {
 	return false;
 }
 
-// Handler for connection requests sent by the water quality server
 void client_chunk_handler(coap_message_t *response) {
 	const uint8_t *chunk;
 	if(response == NULL) {
