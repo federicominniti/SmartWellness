@@ -19,11 +19,6 @@
 #include <sys/node-id.h>
 
 #define LOG_MODULE "access-control"
-#ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
-#define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
-#else
-#define LOG_LEVEL LOG_LEVEL_DBG
-#endif
 
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
@@ -34,15 +29,14 @@ static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
 #define PUBLISH_INTERVAL	        (5 * CLOCK_SECOND)
 
 
-/* Various states */
 static uint8_t state;
 
-#define STATE_INIT    		    0	// initial state
-#define STATE_NET_OK    	    1	// Network is initialized
-#define STATE_CONNECTING      	2	// Connecting to MQTT broker
-#define STATE_CONNECTED       	3	// Connection successful
-#define STATE_SUBSCRIBED      	4	// Topics subscription done
-#define STATE_DISCONNECTED    	5	// Disconnected from MQTT broker
+#define STATE_INIT    		    0
+#define STATE_NET_OK    	    1
+#define STATE_CONNECTING      	2
+#define STATE_CONNECTED       	3
+#define STATE_SUBSCRIBED      	4
+#define STATE_DISCONNECTED    	5
 
 PROCESS_NAME(access_control_process);
 PROCESS_NAME(blinking_led);
@@ -57,14 +51,9 @@ static char client_id[BUFFER_SIZE];
 static char pub_topic[BUFFER_SIZE];
 static char sub_topic[BUFFER_SIZE];
 
-// Periodic timer to check the state of the MQTT client
 #define STATE_MACHINE_PERIODIC (CLOCK_SECOND >> 1)
 static struct etimer periodic_timer;
 
-/*
- * The main MQTT buffers.
- * We will need to increase if we start publishing more data.
- */
 #define APP_BUFFER_SIZE 512
 static char app_buffer[APP_BUFFER_SIZE];
 
@@ -84,7 +73,7 @@ static bool manual = false;
 static mqtt_status_t status;
 static char broker_address[CONFIG_IP_ADDR_STR_LEN];
 
-// Incoming message handling
+
 static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk, uint16_t chunk_len) {
 	if(strcmp(topic, "access_regulator") == 0) {
 		if(strcmp((const char*) chunk, "0") == 0) {
@@ -112,11 +101,6 @@ static void pub_handler(const char *topic, uint16_t topic_len, const uint8_t *ch
 				LOG_INFO("Entrance door locked\n");
 			}
 
-			//Handling of collector chashes
-			/*if(number_of_people > 15){
-				LOG_INFO("%d people exited for security reason\n", (number_of_people-15));
-				number_of_people = 15;
-			}*/
 		}
 	}
 	else {
@@ -148,7 +132,7 @@ static void mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data
                 mqtt_suback_event_t *suback_event = (mqtt_suback_event_t *)data;
                 if(suback_event->success){
                     LOG_INFO("Application has subscribed to topic successfully\n");
-                } 
+                }
                 else {
                     LOG_ERR("Application failed to subscribe to topic (ret code %x)\n", suback_event->return_code);
                 }
@@ -208,7 +192,6 @@ static void simulate_of_entrance(){
 		factor = 1;
 	}
 	else if(entrance_door_locked){
-		//entrance door closed or number of people greater than 30
 		factor = -1;
 	}
 
@@ -226,20 +209,17 @@ PROCESS_THREAD(access_control_process, ev, data) {
 
 	PROCESS_BEGIN();
 
-	// Initialize the ClientID as MAC address
 	snprintf(client_id, BUFFER_SIZE, "%02x%02x%02x%02x%02x%02x",
 		     linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
 		     linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
 		     linkaddr_node_addr.u8[6], linkaddr_node_addr.u8[7]);
 
-	// Broker registration					 
 	mqtt_register(&conn, &access_control_process, client_id, mqtt_event, MAX_TCP_SEGMENT_SIZE);
 
 	static char sensorType[20] = "presenceSensor";
 			
 	state=STATE_INIT;
 				    
-	// Initialize periodic timer to check the status 
 	etimer_set(&periodic_timer, PUBLISH_INTERVAL);
 
 	while(1) {
@@ -261,7 +241,6 @@ PROCESS_THREAD(access_control_process, ev, data) {
                 LOG_INFO("Connected to MQTT server\n"); 
 			} 
 			if(state==STATE_CONNECTED) {
-				// Subscribe to a topic
 				strcpy(sub_topic,"access_regulator");
 				status = mqtt_subscribe(&conn, NULL, sub_topic, MQTT_QOS_LEVEL_0);
 				if(status == MQTT_STATUS_OUT_QUEUE_FULL){
@@ -317,6 +296,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	leds_on(LEDS_RED);
 
+	//red led is blinking until the connection to the border router and the collector is not complete
 	while(state != STATE_SUBSCRIBED){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
@@ -330,6 +310,11 @@ PROCESS_THREAD(blinking_led, ev, data)
 	etimer_set(&access_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+    /*
+        if the light color is red, the red led is blinking
+        if the light color is green, the green led is blinking
+        if the light color is yellow, both green and red leds are blinking
+    */
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
