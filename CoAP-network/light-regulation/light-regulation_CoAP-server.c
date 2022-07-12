@@ -20,10 +20,10 @@
 
 #include "sys/log.h"
 
-//Observing server End-Point address
+//address of the observing java collector
 #define SERVER_EP "coap://[fd00::1]:5683"
 
-//Interval for registration retries with the observing server
+//Interval for registration retries with the observing collector
 #define REGISTRATION_INTERVAL 2
 
 //Type of device
@@ -33,15 +33,13 @@
 #define LOG_MODULE "light-regulation"
 #define LOG_LEVEL LOG_LEVEL_APP
 
-//TO DO 
-//#define SIMULATION_INTERVAL 300
 //Simulation interval between sensor measurements
 #define SIMULATION_INTERVAL 10
 
 //Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
 
-//Coap Resources for the pump (actuator) and the PH-sensor (sensor)
+//resources of the light system (actuator) and the crepuscular sensor
 extern coap_resource_t res_light_system;
 extern coap_resource_t res_crepuscular_sensor;
 
@@ -68,8 +66,8 @@ static struct etimer led_on_timer;
 //Declare the two protothreads: one for the sensing subsystem,
 //the other for handling leds blinking
 PROCESS(light_regulation_server, "Light Regulation Server");
-PROCESS(blinking_led, "Led blinking process");
-AUTOSTART_PROCESSES(&light_regulation_server, &blinking_led);
+PROCESS(leds_blinking, "Led blinking process");
+AUTOSTART_PROCESSES(&light_regulation_server, &leds_blinking);
 
 
 // Test the connectivity with the border router
@@ -84,7 +82,6 @@ static bool is_connected() {
 }
 
 // Handler for connection requests sent by the water quality server
-// In case the reply is 'Success' the water quality server is connected to the collector
 void client_chunk_handler(coap_message_t *response) {
 	const uint8_t *chunk;
 	if(response == NULL) {
@@ -152,7 +149,7 @@ PROCESS_THREAD(light_regulation_server, ev, data){
 	PROCESS_END();
 }
 
-PROCESS_THREAD(blinking_led, ev, data)
+PROCESS_THREAD(leds_blinking, ev, data)
 {
 	PROCESS_BEGIN();
 
