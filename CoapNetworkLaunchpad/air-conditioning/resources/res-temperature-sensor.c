@@ -10,7 +10,6 @@
 
 #include "sys/log.h"
 
-/* Log configuration */
 #define LOG_MODULE "temperature-sensor"
 #define LOG_LEVEL LOG_LEVEL_APP
 
@@ -26,12 +25,6 @@ EVENT_RESOURCE(res_temperature_sensor,
 	 temperature_event_handler);
 
 static int temperature = 18;
-//static char sensorType[20] = "tempSensor";
-
-int random_in_range(int a, int b) {
-    int v = random_rand() % (b-a);
-    return v + a;
-}
 
 static void simulate_temperature_values () {
     int variation = 0;
@@ -47,7 +40,6 @@ static void simulate_temperature_values () {
 	    else if (temperature == ac_temperature) {
 	        variation = 0;
 	    } else {
-	        //33% of chance that the temperature will go down of 1C
 	        variation = random_rand() % 3;
 	        if (variation != 1)
 	            variation = 0;
@@ -57,8 +49,7 @@ static void simulate_temperature_values () {
 	    temperature = temperature - variation;
 
 	} else {
-	    //3% of chance that the temperature will go up of 1C
-        variation = random_rand() % 3;
+        variation = random_rand() % 2;
         if (variation != 1)
             variation = 0;
 
@@ -69,7 +60,6 @@ static void simulate_temperature_values () {
 
 static void temperature_event_handler(void) {
 	simulate_temperature_values();
-	LOG_INFO("temperature : %d \n", temperature);
     coap_notify_observers(&res_temperature_sensor);
 }
 
@@ -80,8 +70,6 @@ static void temperature_get_handler(coap_message_t *request, coap_message_t *res
 
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
-
-        LOG_INFO("message: %s\n", message);
 
       	coap_set_header_content_format(response, TEXT_PLAIN);
       	coap_set_header_etag(response, (uint8_t *)&len, 1);

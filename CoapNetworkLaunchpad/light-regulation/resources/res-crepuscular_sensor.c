@@ -10,7 +10,6 @@
  
 #include "sys/log.h"
  
-/* Log configuration */
 #define LOG_MODULE "crepuscular-sensor"
 #define LOG_LEVEL LOG_LEVEL_APP
  
@@ -30,12 +29,16 @@ static char sensorType[20] = "crepuscularSensor";
  
 static void simulate_lux_values () {
 	//In a real environment the luxe range is 0 - 25000
-    lux = random_rand() % 1850;
+
+	//we pick a random value between 0 and 2000 so we have
+	// -> 500/2500 = 20% probability that the light goes OFF(0)
+	// -> 350/2500 = 14% probability that the light goes ON(2)
+	// -> 1150 / 2500 = 46% probability that the light goes LOW(1)
+    lux = random_rand() % 2500;
 }
  
 static void lux_event_handler(void) {
     simulate_lux_values();
-	LOG_INFO("LUX: %d \n", lux);
     coap_notify_observers(&res_crepuscular_sensor);
 }
  
@@ -47,9 +50,7 @@ static void lux_get_handler(coap_message_t *request, coap_message_t *response, u
  
       	size_t len = strlen(message);
       	memcpy(buffer, (const void *) message, len);
- 
-        LOG_INFO("message: %s\n", message);
- 
+
       	coap_set_header_content_format(response, TEXT_PLAIN);
       	coap_set_header_etag(response, (uint8_t *)&len, 1);
       	coap_set_payload(response, buffer, len);

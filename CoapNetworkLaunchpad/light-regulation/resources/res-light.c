@@ -6,7 +6,6 @@
 
 #include "sys/log.h"
 
-/* Log configuration */
 #define LOG_MODULE "light_regulation"
 #define LOG_LEVEL LOG_LEVEL_APP
 
@@ -33,12 +32,6 @@ static void light_put_handler(coap_message_t *request, coap_message_t *response,
 	len = coap_get_post_variable(request, "level", &text);
 	if(len != 0) {
         light_level = atoi(text);
-        if(light_level > 0)
-            LOG_INFO("Light ON\n");
-        else{
-            LOG_INFO("Light OFF\n");
-        }
-        LOG_INFO("Level %d\n", light_level);
 	} else {
 		response_status = false;
 	}
@@ -52,10 +45,8 @@ void manual_handler(){
     manual = !manual;
     if(light_level == 0){
 		light_level = 2;
-        LOG_INFO("Light ON\n");
 	}else{
 		light_level = 0;
-        LOG_INFO("Light OFF\n");
 	}
 }
 

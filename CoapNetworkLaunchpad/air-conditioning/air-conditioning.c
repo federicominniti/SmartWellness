@@ -20,73 +20,52 @@
 
 #include "sys/log.h"
 
-//Observing server End-Point address
 #define SERVER_EP "coap://[fd00::1]:5683"
 
-//Interval for registration retries with the observing server
 #define REGISTRATION_INTERVAL 2
 
-//Type of device
 #define RESOURCE_TYPE "air_conditioning"
 
-// Log configuration
 #define LOG_MODULE "air_conditioning"
 #define LOG_LEVEL LOG_LEVEL_APP
 
-//Simulation interval between sensor measurements
 #define SIMULATION_INTERVAL 6
 
-//Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
 
-//Coap Resources for the AC (actuator) and the temperature sensor (sensor)
 extern coap_resource_t res_ac_system;
 extern coap_resource_t res_temperature_sensor;
 
-//URL for registration with the observing server
 char *service_url = "/registration";
 
-//Registration status
 static bool registered = false;
 
-//Timer for simulations of sensor measurements
 static struct etimer simulation_timer;
 
-//Timer for connection retries with the border router
 static struct etimer connectivity_timer;
 
-//Timer for registration retries with the observing server
 static struct etimer registration_timer;
 
-//Timers required for leds blinking
 static struct etimer registration_led_timer;
 static struct etimer ac_led_timer;
 static struct etimer led_on_timer;
 
-//Declare the two protothreads: one for the sensing subsystem,
-//the other for handling leds blinking
 PROCESS(air_conditioning_server, "Air Conditioning Server");
-PROCESS(blinking_led, "Led blinking process");
-AUTOSTART_PROCESSES(&air_conditioning_server, &blinking_led);
+PROCESS(leds_blinking, "Led blinking process");
+AUTOSTART_PROCESSES(&air_conditioning_server, &leds_blinking);
 
 
-// Test the connectivity with the border router
 static bool is_connected() {
 	if(NETSTACK_ROUTING.node_is_reachable()) {
-		LOG_INFO("The Border Router is reachable\n");
 		return true;
   	} else {
-		LOG_INFO("Waiting for connection with the Border Router\n");
+  	    return false;
 	}
-	return false;
 }
 
-// Handler for connection requests sent by the water quality server
-// In case the reply is 'Success' the water quality server is connected to the collector
 void client_chunk_handler(coap_message_t *response) {
 	const uint8_t *chunk;
 	if(response == NULL) {
-		LOG_INFO("Request timed out\n");
 		etimer_set(&registration_timer, CLOCK_SECOND* REGISTRATION_INTERVAL);
 		return;
 	}
@@ -104,14 +83,11 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
 
 	static coap_endpoint_t server_ep;
 
-    // This way the packet can be treated as pointer as usual
     static coap_message_t request[1];
 
-	LOG_INFO("Starting air conditioning CoAP server\n");
 	coap_activate_resource(&res_ac_system, "air_conditioning/ac");
 	coap_activate_resource(&res_temperature_sensor, "air_conditioning/temperature");
 
-	// try to connect to the border router
 	etimer_set(&connectivity_timer, CLOCK_SECOND * CONNECTION_TEST_INTERVAL);
 	PROCESS_WAIT_UNTIL(etimer_expired(&connectivity_timer));
 	while(!is_connected()) {
@@ -119,11 +95,8 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
 		PROCESS_WAIT_UNTIL(etimer_expired(&connectivity_timer));
 	}
 
-	//try to connect to the collector
 	while(!registered) {
-    	LOG_INFO("Sending registration message\n");
     	coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
-    	// Prepare the message
     	coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
     	coap_set_header_uri_path(request, service_url);
     	coap_set_payload(request, (uint8_t *)RESOURCE_TYPE, sizeof(RESOURCE_TYPE) - 1);
@@ -133,7 +106,6 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
     	PROCESS_WAIT_UNTIL(etimer_expired(&registration_timer));
     }
 
-	//periodic simulation of sensor measurements
 	etimer_set(&simulation_timer, CLOCK_SECOND * SIMULATION_INTERVAL);
 	while(1) {
 		PROCESS_WAIT_EVENT();
@@ -141,8 +113,7 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
 			if(ev == button_hal_press_event){
 				button_hal_button_t* btn = (button_hal_button_t*)data;
 				if (btn->unique_id == BOARD_BUTTON_HAL_INDEX_KEY_LEFT) {
-					manual = !manual;
-					ac_on = !ac_on;
+					manual_handler();
 				}
 			}
 			res_temperature_sensor.trigger();
@@ -153,7 +124,7 @@ PROCESS_THREAD(air_conditioning_server, ev, data){
 	PROCESS_END();
 }
 
-PROCESS_THREAD(blinking_led, ev, data)
+PROCESS_THREAD(leds_blinking, ev, data)
 {
 	PROCESS_BEGIN();
 
@@ -161,6 +132,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
 	leds_on(LEDS_RED);
 
+    //the red led is blinking until the the device is still connecting to the border router or the collector
 	while(!is_connected() || !registered){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
@@ -176,6 +148,9 @@ PROCESS_THREAD(blinking_led, ev, data)
 	etimer_set(&ac_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+    /*if the AC is on the both the red and green leds are blinking, otherwise
+      only the green led is blinking
+    */
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){

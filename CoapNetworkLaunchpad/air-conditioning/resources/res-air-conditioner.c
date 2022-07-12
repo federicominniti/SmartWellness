@@ -5,7 +5,6 @@
 
 #include "sys/log.h"
 
-/* Log configuration */
 #define LOG_MODULE "ac-system"
 #define LOG_LEVEL LOG_LEVEL_APP
 
@@ -33,11 +32,8 @@ static bool change_ac_status(int len, const char* text) {
 		memcpy(status, text, len);
 		if(strncmp(status, "ON", len) == 0) {
 			ac_on = true;
-			LOG_INFO("AC system ON\n");
 		} else if(strncmp(status, "OFF", len) == 0) {
 			ac_on = false;
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
-			LOG_INFO("AC System OFF\n");
 		} else {
 			return false;
 		}
@@ -55,8 +51,6 @@ static bool change_ac_temp(int len, const char* text) {
 	if(len > 0 && len < 4) {
 		memcpy(ac_temp, text, len);
 		ac_temperature = atoi(ac_temp);
-
-	    LOG_INFO("Changed AC temperature to %d \n", ac_temperature);
 	} else {
 		return false;
 	}
@@ -73,13 +67,10 @@ static void ac_put_handler(coap_message_t *request, coap_message_t *response, ui
 
 	len = coap_get_post_variable(request, "status", &text);
 	if (len > 0) {
-	    LOG_INFO("status len: %d \n", len);
 	    response_status = change_ac_status(len, text);
 	} else {
 	    text = NULL;
 	    len = coap_get_post_variable(request, "ac_temp", &text);
-	    LOG_INFO("ac temp len: %d \n", len);
-
 	    response_status = change_ac_temp(len, text);
 	}
 
@@ -88,3 +79,13 @@ static void ac_put_handler(coap_message_t *request, coap_message_t *response, ui
 	}
 }
 
+void manual_handler() {
+    manual = !manual;
+    ac_on = !ac_on;
+
+    if (ac_on) {
+        LOG_INFO("AC is ON \n");
+    } else {
+        LOG_INFO("AC is OFF\n");
+    }
+}
