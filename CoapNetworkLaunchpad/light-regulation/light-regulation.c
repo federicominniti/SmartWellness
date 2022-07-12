@@ -109,6 +109,7 @@ PROCESS_THREAD(light_regulation_server, ev, data){
 		PROCESS_WAIT_EVENT();
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
 			if(ev == button_hal_press_event){
+				//check the left button pression
 				button_hal_button_t* btn = (button_hal_button_t*)data;
 				if (btn->unique_id == BOARD_BUTTON_HAL_INDEX_KEY_LEFT) {
 					manual_handler();
