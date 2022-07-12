@@ -31,10 +31,10 @@
 #ifndef PROJECT_CONF_H_
 #define PROJECT_CONF_H_
 
-// Set the max response payload before enable fragmentation:
+
 #undef REST_MAX_CHUNK_SIZE
 #define REST_MAX_CHUNK_SIZE 96
-// Set the maximum number of CoAP concurrent transactions:
+
 #undef COAP_MAX_OPEN_TRANSACTIONS
 #define COAP_MAX_OPEN_TRANSACTIONS 4
 

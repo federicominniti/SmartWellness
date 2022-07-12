@@ -19,9 +19,13 @@ RESOURCE(res_light_system,
          light_put_handler,
          NULL);
 
+//sets the light OFF(0), LOW(1), ON(2)
 int light_level = 0;
+
+//tracks if the light is in manual mode
 bool manual = false;
 
+//sets the light actuator based on a CoAP request from the collector
 static void light_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	size_t len = 0;
 	const char *text = NULL;
@@ -48,6 +52,7 @@ static void light_put_handler(coap_message_t *request, coap_message_t *response,
  	}
 }
 
+//enter or exit the manual mode and set the status of the light accordingly
 void manual_handler(){
     manual = !manual;
     if(light_level == 0){

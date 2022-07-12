@@ -97,9 +97,15 @@ static void ac_put_handler(coap_message_t *request, coap_message_t *response, ui
 	}
 }
 
-//enter/exit the manual mode and set the status of the AC accordingly
+//enter or exit the manual mode and set the status of the AC accordingly
 void manual_handler() {
     manual = !manual;
     ac_on = !ac_on;
+
+    if (ac_on) {
+        LOG_INFO("AC is ON \n");
+    } else {
+        LOG_INFO("AC is OFF\n");
+    }
 }
 
