@@ -7,7 +7,7 @@
 #include "contiki.h"
 #include "coap-engine.h"
 #include "random.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 #include "sys/node-id.h"
  
 #include "global_variables.h"
@@ -28,13 +28,19 @@ EVENT_RESOURCE(res_crepuscular_sensor,
          NULL,
          NULL,
 	     lux_event_handler);
- 
+
+//lux sensed by the crepuscular sensor
 static int lux = 1600;
 static char sensorType[20] = "crepuscularSensor";
  
 static void simulate_lux_values () {
 	//In a real environment the luxe range is 0 - 25000
-    lux = random_rand() % 1850;
+
+	//we pick a random value between 0 and 2000 so we have
+	// -> 500/2500 = 20% probability that the light goes OFF(0)
+	// -> 350/2500 = 14% probability that the light goes ON(2)
+	// -> 1150 / 2500 = 46% probability that the light goes LOW(1)
+    lux = random_rand() % 2500;
 }
 
 static void lux_event_handler(void) {

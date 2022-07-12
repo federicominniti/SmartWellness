@@ -34,7 +34,7 @@
 #define LOG_LEVEL LOG_LEVEL_APP
 
 //Simulation interval between sensor measurements
-#define SIMULATION_INTERVAL 10
+#define SIMULATION_INTERVAL 15
 
 //Interval for connection retries with the border router
 #define CONNECTION_TEST_INTERVAL 2
@@ -102,7 +102,6 @@ PROCESS_THREAD(light_regulation_server, ev, data){
 
 	static coap_endpoint_t server_ep;
 
-    // This way the packet can be treated as pointer as usual
     static coap_message_t request[1];
 
 	LOG_INFO("Starting light regulation CoAP server\n");
@@ -136,7 +135,7 @@ PROCESS_THREAD(light_regulation_server, ev, data){
 	while(1) {
 		PROCESS_WAIT_EVENT();
 		if((ev == PROCESS_EVENT_TIMER && data == &simulation_timer) || ev == button_hal_press_event) {
-			//handle manual pump activation with the button
+			//let the actuator resource handle the manual mode
 			if(ev == button_hal_press_event){
 				manual_handler();
 			}
@@ -156,6 +155,7 @@ PROCESS_THREAD(leds_blinking, ev, data)
 
 	leds_set(LEDS_NUM_TO_MASK(LEDS_YELLOW));
 
+    //yellow led blinking until the connection to the border router and the collector is not complete
 	while(!is_connected() || !registered){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
@@ -169,17 +169,14 @@ PROCESS_THREAD(leds_blinking, ev, data)
 	etimer_set(&lux_led_timer, 7*CLOCK_SECOND);
 	etimer_set(&led_on_timer, 1*CLOCK_SECOND);
 
+    /*if the light is ON(2) only the red led is blinking
+      if the light is LOW(1) only the yellow led is blinking
+      if the light is OFF(0) only the green led is blinking
+    */
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
 			if(etimer_expired(&lux_led_timer)){
-				/*if(lux > 1500){
-					leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
-				} else if(lux < 1500 && lux > 350){
-                    leds_on(LEDS_NUM_TO_MASK(LEDS_YELLOW));
-                } else if(lux < 350){
-                    leds_on(LEDS_NUM_TO_MASK(LEDS_RED));
-                }*/
 				if(light_level == 0){
 					leds_on(LEDS_NUM_TO_MASK(LEDS_GREEN));
 				} else if(light_level == 1){
