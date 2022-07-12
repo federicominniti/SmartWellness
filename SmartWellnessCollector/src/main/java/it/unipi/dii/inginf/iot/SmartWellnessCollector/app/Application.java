@@ -148,6 +148,7 @@ public class Application {
     }
 
     private static void printUsage() {
+        //
         String output = "****** SmartWellness Collector ******\n" +
                 "Instert a command:\n\n" +
                 "--- GYM ---\n" +
