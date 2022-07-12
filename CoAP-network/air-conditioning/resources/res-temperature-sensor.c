@@ -7,7 +7,7 @@
 #include "contiki.h"
 #include "coap-engine.h"
 #include "random.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 #include "sys/node-id.h"
 
 #include "global_variables.h"
@@ -29,14 +29,15 @@ EVENT_RESOURCE(res_temperature_sensor,
          NULL,
 	 temperature_event_handler);
 
+//the temperature sensed by the sensor
 static int temperature = 18;
-//static char sensorType[20] = "tempSensor";
 
-int random_in_range(int a, int b) {
-    int v = random_rand() % (b-a);
-    return v + a;
-}
-
+/*
+    when the AC is OFF, 33% of chance the temperature will rise of 1C
+    when the AC is ON and the temperature is higher than the AC working temperature, 33% of chance of decrease of 1C
+    when the AC is ON and the temperature==AC working temperature, the temperature does not change
+    when the AC is ON and the temperature<AC working temperature, 50% of chance of increase of 1C
+*/
 static void simulate_temperature_values () {
     int variation = 0;
 
@@ -51,7 +52,6 @@ static void simulate_temperature_values () {
 	    else if (temperature == ac_temperature) {
 	        variation = 0;
 	    } else {
-	        //33% of chance that the temperature will go down of 1C
 	        variation = random_rand() % 3;
 	        if (variation != 1)
 	            variation = 0;
@@ -61,8 +61,7 @@ static void simulate_temperature_values () {
 	    temperature = temperature - variation;
 
 	} else {
-	    //3% of chance that the temperature will go up of 1C
-        variation = random_rand() % 3;
+        variation = random_rand() % 2;
         if (variation != 1)
             variation = 0;
 
