@@ -149,7 +149,7 @@ PROCESS_THREAD(blinking_led, ev, data)
 
     /*if the buffer regulator is ON, both the leds are blinking
       if the buffer regulator is OFF, only the green led is blinking
-    */
+    *///
 	while(1){
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER){
