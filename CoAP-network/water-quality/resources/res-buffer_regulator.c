@@ -57,7 +57,7 @@ static void buffer_put_handler(coap_message_t *request, coap_message_t *response
     		coap_set_status_code(response, BAD_REQUEST_4_00);
  	}
 }
-
+//
 void manual_handler() {
     manual = !manual;
     buffer_release = !buffer_release;
