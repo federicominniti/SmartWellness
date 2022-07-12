@@ -2,7 +2,7 @@
 #include <string.h>
 #include "contiki.h"
 #include "coap-engine.h"
-#include "dev/leds.h"
+#include "os/dev/leds.h"
 
 #include "sys/log.h"
 
@@ -22,10 +22,17 @@ RESOURCE(res_ac_system,
          ac_put_handler,
          NULL);
 
+//sets the AC ON/OFF
 bool ac_on = false;
+
+//sets the working temperature for the AC
 int ac_temperature = 18;
+
+//tracks if the AC is in manual mode
 bool manual = false;
 
+
+//change the AC status based on a CoAP request from the collector
 static bool change_ac_status(int len, const char* text) {
     char status[4];
     memset(status, 0, 3);
@@ -37,7 +44,6 @@ static bool change_ac_status(int len, const char* text) {
 			LOG_INFO("AC system ON\n");
 		} else if(strncmp(status, "OFF", len) == 0) {
 			ac_on = false;
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
 			LOG_INFO("AC System OFF\n");
 		} else {
 			return false;
@@ -49,6 +55,7 @@ static bool change_ac_status(int len, const char* text) {
 	return true;
 }
 
+//change the AC working temperature based on a CoAP request from the collector
 static bool change_ac_temp(int len, const char* text) {
     char ac_temp[4];
     memset(ac_temp, 0, 3);
@@ -66,6 +73,8 @@ static bool change_ac_temp(int len, const char* text) {
 }
 
 
+//checks if the CoAP request from the collector wants to set the AC working temperature
+//or change the status of the AC
 static void ac_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
 	size_t len = 0;
 	const char *text = NULL;
@@ -87,5 +96,11 @@ static void ac_put_handler(coap_message_t *request, coap_message_t *response, ui
 	if (!response_status) {
 	    coap_set_status_code(response, BAD_REQUEST_4_00);
 	}
+}
+
+//enter/exit the manual mode and set the status of the AC accordingly
+void manual_handler() {
+    manual = !manual;
+    ac_on = !ac_on;
 }
 
