@@ -12,7 +12,7 @@
 static bool change_ac_status(int len, const char* text);
 static bool change_ac_temp(int len, const char* text);
 static void ac_put_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-//c
+
 RESOURCE(res_ac_system,
          "title=\"Gym AC System\";rt=\"Control\"",
          NULL,
