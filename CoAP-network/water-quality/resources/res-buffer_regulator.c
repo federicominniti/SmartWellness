@@ -39,12 +39,9 @@ static void buffer_put_handler(coap_message_t *request, coap_message_t *response
 		memcpy(status, text, len);
 		if(strncmp(status, "ON", len) == 0) {
 			buffer_release = true;
-            //TO-DO BLINKING
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_GREEN));
 			LOG_INFO("Buffer regulator ON\n");
 		} else if(strncmp(status, "OFF", len) == 0) {
 			buffer_release = false;
-			//leds_set(LEDS_NUM_TO_MASK(LEDS_RED));
 			LOG_INFO("Buffer regulator OFF\n");
 		} else {
 			response_status = false;
