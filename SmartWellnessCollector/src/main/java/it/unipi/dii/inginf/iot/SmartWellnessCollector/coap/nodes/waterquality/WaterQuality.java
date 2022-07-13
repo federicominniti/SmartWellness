@@ -98,7 +98,7 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
             if(manual.get()){
                 return;
             }
-            else if(!actuatorStatus.get() && sensedData.get() < LOWER_BOUND.get()) {
+            else if(!actuatorStatus.get() && sensedData.get() <= LOWER_BOUND.get()) {
                 bufferRegulatorSwitch(true);
                 actuatorStatus.set(true);
                 logger.logStatus("Buffer regulator ON");
