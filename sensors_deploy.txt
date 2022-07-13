@@ -1,0 +1,7 @@
+Texas Instruments CC2650 LaunchPad
+N. 8   -> BR
+N. 11  -> light regulation
+N. 12  -> access
+N. 6   -> chlorine
+N. 7   -> humidity
+N. 5   -> air conditioning
