@@ -86,9 +86,6 @@ PROCESS(humidity_control_process, "Humidity control process");
 //sets the humidifier ON/OFF
 static bool humidifier_on = false;
 
-//required humidity for a steam bath
-static int required_humidity = 90;
-
 //humidity level sensed by the humidity sensor
 static int humidity_level = 80;
 static int variation = 0;
