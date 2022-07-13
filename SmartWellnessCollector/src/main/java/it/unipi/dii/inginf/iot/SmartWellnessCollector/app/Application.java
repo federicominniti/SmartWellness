@@ -149,7 +149,7 @@ public class Application {
 
     private static void printUsage() {
         //
-        String output = "****** SmartWellness Collector ******\n" +
+        String output = "SmartWellness\n" +
                 "Instert a command:\n\n" +
                 "--- GYM ---\n" +
                 "get_gym_temperature                           <--- get current temperature in the gym \n" +
