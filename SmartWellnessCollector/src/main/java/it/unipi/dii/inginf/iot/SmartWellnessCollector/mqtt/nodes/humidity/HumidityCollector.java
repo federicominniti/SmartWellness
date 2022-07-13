@@ -32,13 +32,13 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         if(humiditySample.getManual() == 1 && !manual) {
             manual = true;
             actuatorOn = !actuatorOn;
-            logger.logStatus("MANUAL humidifier");
+            logger.logStatus("MANUAL: humidifier is " + (actuatorOn ? "ON":"OFF"));
 
         } else if (humiditySample.getManual() == 0 && manual) {
             manual = false;
             actuatorOn = !actuatorOn;
             update = true;
-            logger.logStatus("END MANUAL humidifier");
+            logger.logStatus("END MANUAL: humidifier is " + (actuatorOn ? "ON":"OFF"));
         }
 
         if(!manual && actualValue < MIN_HUMIDITY && !actuatorOn) {

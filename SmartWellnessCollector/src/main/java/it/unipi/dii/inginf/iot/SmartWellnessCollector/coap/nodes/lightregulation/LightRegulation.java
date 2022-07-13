@@ -49,10 +49,16 @@ public class LightRegulation extends CoapNode<AtomicInteger, AtomicInteger> {
 
     private int manualSwitchSystem(){
         if(actuatorStatus.get() == 0){
-            logger.logStatus("MANUAL: Gym light is ON");
+            if (manual.get())
+                logger.logStatus("MANUAL: Gym light is ON");
+            else
+                logger.logStatus("END MANUAL: Gym light is ON");
             return 2;
         } else{
-            logger.logStatus("MANUAL: Gym light is OFF");
+            if (manual.get())
+                logger.logStatus("MANUAL: Gym light is OFF");
+            else
+                logger.logStatus("END MANUAL: Gym light is OFF");
             return 0;
         }
     }

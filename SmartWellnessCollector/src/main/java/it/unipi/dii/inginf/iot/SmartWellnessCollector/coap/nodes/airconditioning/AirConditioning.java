@@ -109,10 +109,10 @@ public class AirConditioning extends CoapNode<AtomicInteger, AtomicBoolean> {
                 if(temperatureSampleManual != manual.get()){
                     manual.set(temperatureSampleManual);
                     actuatorStatus.set(!actuatorStatus.get());
-                    if (actuatorStatus.get())
-                        logger.logStatus("MANUAL: AC is ON");
+                    if (manual.get())
+                        logger.logStatus("MANUAL: AC is " + (actuatorStatus.get() ? "ON":"OFF"));
                     else
-                        logger.logStatus("MANUAL: AC is OFF");
+                        logger.logStatus("END MANUAL: AC is " + (actuatorStatus.get() ? "ON":"OFF"));
                 }
             } catch (Exception e) {
                 logger.logError("The temperature sensor gave non-significant data");

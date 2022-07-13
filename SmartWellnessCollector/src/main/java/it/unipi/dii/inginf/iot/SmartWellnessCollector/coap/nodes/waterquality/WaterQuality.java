@@ -84,10 +84,10 @@ public class WaterQuality extends CoapNode<AtomicFloat, AtomicBoolean> {
                 if(waterQualitySampleManual != manual.get()){
                     manual.set((waterQualitySample.getManual() == 1));
                     actuatorStatus.set(!actuatorStatus.get());
-                    if (actuatorStatus.get())
-                        logger.logStatus("MANUAL: buffer regulator ON");
+                    if (manual.get())
+                        logger.logStatus("MANUAL: Buffer regulator is " + (actuatorStatus.get() ? "ON":"OFF"));
                     else
-                        logger.logStatus("MANUAL: buffer regulator OFF");
+                        logger.logStatus("END MANUAL: Buffer regulator is " + (actuatorStatus.get() ? "ON":"OFF"));
                 }
             } catch (Exception e) {
                 logger.logError("The PH sensor gave non-significant data");
