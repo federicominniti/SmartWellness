@@ -33,11 +33,11 @@ bool manual = false;
 
 //change the AC status based on a CoAP request from the collector
 static bool change_ac_status(int len, const char* text) {
-    char status[4];
-    memset(status, 0, 3);
+	char status[4];
+	memset(status, 0, 3);
 
 	if(len > 0 && len < 4) {
-		memcpy(status, text, len);
+    		memcpy(status, text, len);
 		if(strncmp(status, "ON", len) == 0) {
 			ac_on = true;
 			LOG_INFO("AC system ON\n");
@@ -47,28 +47,28 @@ static bool change_ac_status(int len, const char* text) {
 		} else {
 			return false;
 		}
-	} else {
+    	} else {
 		return false;
-	}
+    	}
 
-	return true;
+    	return true;
 }
 
 //change the AC working temperature based on a CoAP request from the collector
 static bool change_ac_temp(int len, const char* text) {
-    char ac_temp[4];
-    memset(ac_temp, 0, 3);
+    	char ac_temp[4];
+    	memset(ac_temp, 0, 3);
 
-	if(len > 0 && len < 4) {
+    	if(len > 0 && len < 4) {
 		memcpy(ac_temp, text, len);
 		ac_temperature = atoi(ac_temp);
 
-	    LOG_INFO("Changed AC temperature to %d \n", ac_temperature);
-	} else {
+		LOG_INFO("Changed AC temperature to %d \n", ac_temperature);
+    	} else {
 		return false;
-	}
+    	}
 
-	return true;
+    	return true;
 }
 
 
@@ -78,34 +78,34 @@ static void ac_put_handler(coap_message_t *request, coap_message_t *response, ui
 	size_t len = 0;
 	const char *text = NULL;
 
-    bool response_status = true;
+    	bool response_status = true;
 
 	len = coap_get_post_variable(request, "status", &text);
 	if (len > 0) {
-	    LOG_INFO("status len: %d \n", len);
-	    response_status = change_ac_status(len, text);
+		LOG_INFO("status len: %d \n", len);
+	    	response_status = change_ac_status(len, text);
 	} else {
-	    text = NULL;
-	    len = coap_get_post_variable(request, "ac_temp", &text);
-	    LOG_INFO("ac temp len: %d \n", len);
+	    	text = NULL;
+	    	len = coap_get_post_variable(request, "ac_temp", &text);
+	   	LOG_INFO("ac temp len: %d \n", len);
 
-	    response_status = change_ac_temp(len, text);
+	    	response_status = change_ac_temp(len, text);
 	}
 
 	if (!response_status) {
-	    coap_set_status_code(response, BAD_REQUEST_4_00);
+	    	coap_set_status_code(response, BAD_REQUEST_4_00);
 	}
 }
 
 //enter or exit the manual mode and set the status of the AC accordingly
 void manual_handler() {
-    manual = !manual;
-    ac_on = !ac_on;
+    	manual = !manual;
+    	ac_on = !ac_on;
 
-    if (ac_on) {
-        LOG_INFO("AC is ON \n");
-    } else {
-        LOG_INFO("AC is OFF\n");
-    }
+    	if (ac_on) {
+        	LOG_INFO("AC is ON \n");
+    	} else {
+        	LOG_INFO("AC is OFF\n");
+    	}
 }
 
