@@ -189,6 +189,11 @@ static bool have_connectivity(void) {
 static void manual_handler(){
     manual = !manual;
 	increase_chlorine = !increase_chlorine;
+	if (increase_chlorine) {
+    	LOG_INFO("[MANUAL] Chlorine regulator is ON\n");
+    } else {
+        LOG_INFO("[MANUAL] Chlorine regulator is OFF\n");
+    }
 }
 
 /*
