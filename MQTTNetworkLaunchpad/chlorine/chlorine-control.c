@@ -20,6 +20,12 @@
 
 #define LOG_MODULE "chlorine-control"
 
+#ifdef  MQTT_CLIENT_CONF_LOG_LEVEL
+#define LOG_LEVEL MQTT_CLIENT_CONF_LOG_LEVEL
+#else
+#define LOG_LEVEL LOG_LEVEL_DBG
+#endif
+
 #define MQTT_CLIENT_BROKER_IP_ADDR "fd00::1"
 
 static const char *broker_ip = MQTT_CLIENT_BROKER_IP_ADDR;
