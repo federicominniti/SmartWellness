@@ -1,6 +1,5 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.model;
 import java.sql.Timestamp;
-import java.util.Calendar;
 
 public class DataSample {
     private int node; // node id, identifies the device during a single deployment
