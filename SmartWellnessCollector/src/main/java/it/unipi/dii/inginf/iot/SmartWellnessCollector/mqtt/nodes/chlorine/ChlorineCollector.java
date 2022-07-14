@@ -1,15 +1,9 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.chlorine;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
-//import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.MqttNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
 
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.google.gson.Gson;
 
 /**
  * Stub class for the MQTT device regulating the chlorine of the pool.
