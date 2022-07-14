@@ -28,7 +28,7 @@ public class HumidityCollector extends MqttNode<Integer, Boolean> {
         MySQLDriver.getInstance().insertDataSample(humiditySample);
         actualValue = (int)humiditySample.getValue();
         boolean update = false;
-////
+
         if(humiditySample.getManual() == 1 && !manual) {
             manual = true;
             actuatorOn = !actuatorOn;
