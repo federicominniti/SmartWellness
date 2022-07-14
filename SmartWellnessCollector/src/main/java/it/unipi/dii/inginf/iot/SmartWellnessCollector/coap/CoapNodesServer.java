@@ -4,12 +4,9 @@ import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.CoAP;
 import org.eclipse.californium.core.server.resources.CoapExchange;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.waterquality.WaterQuality;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.airconditioning.AirConditioning;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.lightregulation.LightRegulation;
-
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
