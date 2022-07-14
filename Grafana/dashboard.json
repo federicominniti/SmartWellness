@@ -1,0 +1,1244 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1m",
+                "0"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1m,0),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"tempSensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1m,0)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"tempSensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Gym temperature sensor",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1m",
+                "0"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1m,0),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"crepuscularSensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1m,0)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"crepuscularSensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Gym Crepuscular sensor",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "sensorType",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp AS \"time\",\n  sensorType AS metric,\n  manual\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"tempSensor\" OR\n  sensorType = \"crepuscularSensor\"\nORDER BY timestamp",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "manual"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "2"
+              ],
+              "type": "expression"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "3"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Gym: Manual",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 7
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1m",
+                "0"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1m,0),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"humiditySensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1m,0)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"humiditySensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Steam Bath Humidity",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 7
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1s",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1s),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"presenceSensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1s)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"presenceSensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Steam Bath Presence Sensor",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      },
+      "id": 10,
+      "interval": "1m",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "sensorType",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp AS \"time\",\n  sensorType AS metric,\n  manual\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"humiditySensor\" OR\n  sensorType = \"presenceSensor\"\nORDER BY timestamp",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "manual"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "4"
+              ],
+              "type": "expression"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "5"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Steam Bath: Manual",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1m",
+                "0"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1m,0),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"phSensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1m,0)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"phSensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Pool pH",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1m",
+                "0"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "sensorType",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(timestamp,1m,0),\n  sensorType AS metric,\n  avg(value) AS \"value\"\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"chlorineSensor\"\nGROUP BY 1,2\nORDER BY $__timeGroup(timestamp,1m,0)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "sensorType",
+                "=",
+                "\"chlorineSensor\""
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Pool Chlorine",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "-T1TqUenk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "id": 9,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "-T1TqUenk"
+          },
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "sensorType",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  timestamp AS \"time\",\n  sensorType AS metric,\n  manual\nFROM DataSamples\nWHERE\n  $__timeFilter(timestamp) AND\n  sensorType = \"chlorineSensor\" OR\n  sensorType = \"phSensor\"\nORDER BY timestamp",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "manual"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "DataSamples",
+          "timeColumn": "timestamp",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "2"
+              ],
+              "type": "expression"
+            },
+            {
+              "datatype": "int",
+              "name": "",
+              "params": [
+                "node",
+                "=",
+                "3"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Pool: Manual",
+      "type": "barchart"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "SmartWellness",
+  "uid": "Z7lhnw67k",
+  "version": 5,
+  "weekStart": ""
+}
