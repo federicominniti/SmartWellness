@@ -4,22 +4,12 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.airconditionin
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.coap.nodes.CoapNode;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.MySQLDriver;
-
-import com.google.gson.Gson;
-import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;
-import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.sql.Timestamp;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.utils.AtomicFloat;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
 
 /**
  * Stub class for the Coap device regulating the air conditioning in the gym.
