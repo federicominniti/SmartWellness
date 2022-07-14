@@ -1,7 +1,6 @@
 package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes;
 
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
-//import it.unipi.dii.inginf.iot.SmartWellnessCollector.persistence.DBDriver;
 import com.google.gson.Gson;
 
 
