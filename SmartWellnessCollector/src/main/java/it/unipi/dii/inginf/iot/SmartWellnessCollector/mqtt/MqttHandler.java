@@ -2,13 +2,11 @@ package it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt;
 
 import com.google.gson.Gson;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.logger.Logger;
-import it.unipi.dii.inginf.iot.SmartWellnessCollector.model.DataSample;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.access.AccessCollector;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.chlorine.ChlorineCollector;
 import it.unipi.dii.inginf.iot.SmartWellnessCollector.mqtt.nodes.humidity.HumidityCollector;
 import org.eclipse.paho.client.mqttv3.*;
 
-import java.util.HashMap;
 
 /**
  * MQTT handler for incoming messages from the MQTT sensors in the network
