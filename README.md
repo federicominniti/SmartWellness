@@ -9,6 +9,8 @@ Half of the devices in the network use the CoAP protocol to expose their resourc
 LEDs of devices display the status of the actuator (e.g., ON or OFF).
 (Smart wellness is deployed using real nodes, six Launchpad CC2650, and each of them (except the border router) implement both sensor and the respective actuator)
 
+[Here1](requirements.pdf) are present the requirements of the project and the complete documentation is available [here2](documentation.pdf)
+
 (Repository for internet of things' project)
 
 ## Main goals are:
