@@ -14,9 +14,9 @@ LEDs of devices display the status of the actuator (e.g., ON or OFF).
 (Repository for internet of things' project)
 
 ## Main goals are:
-- to develop network of IoT devices, including sensors collecting data from the physical system/environment and actuators. Those IoT devices have to use MQTT and CoAP. 
-- to develop a collector application that collects data from sensors, and sends commands to the actuators.
-- to use Grafana in order to display collected data to the user
+- to develop network of IoT devices, including sensors collecting data from the physical system/environment and actuators. Those IoT devices have to use MQTT and CoAP;
+- to develop a collector application that collects data from sensors, and sends commands to the actuators;
+- to use Grafana in order to display collected data to the user.
 
 ## Project structure
  - `CoAP-network`: contains all the CoAP devices
